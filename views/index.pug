@@ -2,3 +2,9 @@ extends layout
 
 block content
   include ./components/nav.pug
+  header 
+    section.container 
+      .wrap 
+        for x in data
+          include ./components/recommend-cover.pug
+  include ./components/category.pug
