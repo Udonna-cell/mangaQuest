@@ -36,7 +36,7 @@ img {
 }
 
 /* action behavior */
-section.category > button.btn-primary:active {
+section.category button.btn-primary:active {
   transform: scale(0.911);
 }
 /* navigation section style */
@@ -104,23 +104,33 @@ nav > section:last-child {
 
 /* category style */
 section.category {
+  padding: 0 1rem;
+}
+section.category > div:first-child {
   display: flex;
-  padding: 0.5rem;
-  height: 100px;
+  /* padding: 0.5rem; */
+  height: 50px;
+  align-items: center;
   justify-content: space-between;
-  /* gap: 1px; */
+  gap: 1px;
   /* background-color: orange; */
 }
-section.category > .tags {
+/* section.category > div:last-child {
+  background-color: yellow;
+} */
+section.category  .tags {
   height: fit-content;
+  width: fit-content;
+  /* overflow: hidden; */
   display: flex;
   flex-wrap: wrap;
   /* flex-grow: 1; */
-  flex-basis: 70%;
   gap: 0.3rem;
   /* width: 300px; */
+  /* background: rgba(24, 57, 10, 0.5); */
 }
-section.category > .tags > .tag {
+
+section.category .tags .tag {
   background-color: transparent;
   border: 1px solid;
   color: #000;
@@ -131,36 +141,37 @@ section.category > .tags > .tag {
   border-radius: 20px;
   text-transform: capitalize;
 }
-section.category > .tags > .tag.active {
+section.category .tags .tag.active {
   background: #000 !important;
   color: #fff !important;
 }
-section.category > button.btn-primary {
+section.category  button.btn-primary {
   flex-basis: 100px;
   display: flex;
   flex-direction: column;
-  flex-grow: 2;
+  /* flex-grow: 2; */
   justify-content: space-between;
   border-radius: 10px;
   border: 1px dashed;
   background: greenyellow;
   position: relative;
-  top: -65px;
+  top: -35px;
   z-index: 2;
   height: 100px;
+  /* width: 50px; */
   font-weight: 300;
   font-size: 1.2rem;
   text-transform: capitalize;
   padding: 0.4rem;
 }
-section.category > button.btn-primary div {
+section.category button.btn-primary div {
   /* background: #000; */
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: end;
 }
-section.category > button.btn-primary img {
+section.category  button.btn-primary img {
   width: 40px;
   height: 40px;
   /* position: absolute;
