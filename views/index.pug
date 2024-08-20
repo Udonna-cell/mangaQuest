@@ -8,3 +8,14 @@ block content
         for x in data
           include ./components/recommend-cover.pug
   include ./components/category.pug
+  main
+    h2 for
+      span You
+    if forYou.length == 0
+      .empty
+        img(src="/images/empty-box.png", alt="alt")
+    else
+      section.container
+        each manga in forYou.data
+          include ./components/card.pug
+  

@@ -8,7 +8,42 @@ router.get('/', function(req, res, next) {
     genre: "romance.drama.slice of life",
     color: "background: linear-gradient(87deg, #2596be 50%, rgba(37, 150, 190,0.05))"
   }
-  res.render('index', { title: 'Express', logo: "it's fun time!", isNotify: true, data: [data]});
+  
+  let forYou = {
+    data: [{
+      title: "rent a girlfriend",
+      genre: "romance . slice of life . Drama",
+      chapter: 34
+    },
+    {
+      title: "demon slayer",
+      genre: "action . adventure . Drama",
+      chapter: 344
+    },
+    {
+      title: "just twilight",
+      genre: "romance . Drama",
+      chapter: 124
+    },
+    {
+      title: "dangers in my heart",
+      genre: "romance . slice of life . Drama",
+      chapter: 334
+    },
+    {
+      title: "demon slayer",
+      genre: "action . adventure . Drama",
+      chapter: 344
+    },
+    {
+      title: "demon slayer",
+      genre: "action . adventure . Drama",
+      chapter: 344
+    }]
+  }
+  forYou.length = forYou.data.length
+  
+  res.render('index', { title: 'Express', logo: "it's fun time!", isNotify: true, data: [data], forYou});
 });
 
 module.exports = router;
