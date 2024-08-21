@@ -16,10 +16,18 @@ var app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Example: Respond to /start command
-bot.start((ctx) =>{
-  bot.telegram.sendPhoto('1948498964', './public/images/img2.png', {"reply_markup":{"inline_keyboard":[[{"text":"test button","callback_data":"test","hide":false}]]}, caption: 'cute kitty'})
-  ctx.reply('Welcome\!')
-  });
+bot.start((ctx) => {
+    const chatId = 1948498964; // Replace with your actual chat ID (without quotes)
+    bot.telegram.sendPhoto(chatId, './public/images/img2.png', {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'test button', callback_data: 'test', hide: true }],
+            ],
+        },
+        caption: 'cute kitty',
+    });
+    ctx.reply('Welcome\!');
+});
 
 // Example: Handle messages containing 'hi'
 bot.hears('hi', (ctx) => ctx.reply('Hey there\!'));
