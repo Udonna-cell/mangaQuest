@@ -16,10 +16,30 @@ var app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Example: Respond to /start command
-bot.start((ctx) => ctx.reply('Welcome\!'));
+bot.start((ctx) =>{
+  bot.telegram.sendPhoto('1948498964', './public/images/img2.png', {"reply_markup":{"inline_keyboard":[[{"text":"test button","callback_data":"test","hide":false}]]}, caption: 'cute kitty'})
+  ctx.reply('Welcome\!')
+  });
 
 // Example: Handle messages containing 'hi'
 bot.hears('hi', (ctx) => ctx.reply('Hey there\!'));
+bot.command("inline", (ctx) => {
+    ctx.reply("Hi there!", {
+        reply_markup: {
+            inline_keyboard: [
+                /* Inline buttons. 2 side-by-side */
+                [ { text: "Button 1", callback_data: "btn-1" }, { text: "Button 2", callback_data: "btn-2" } ],
+
+                /* One button */
+                [ { text: "Next", callback_data: "next" } ],
+                
+                /* Also, we can have URL buttons. */
+                [ { text: "Open in browser", url: "https://t.me/MangaQuest_bot/MangaQuest" } ]
+            ]
+        }
+    });
+});
+
 
 
 
