@@ -17,8 +17,8 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Example: Respond to /start command
 bot.start((ctx) => {
-    const chatId = 1948498964; // Replace with your actual chat ID (without quotes)
-    bot.telegram.sendPhoto(chatId, 'https://mangaquest.onrender.com/images/img.jpg', {
+    const chatId = ctx.update.message.chat.id; // Replace with your actual chat ID (without quotes)
+    bot.telegram.sendPhoto(chatId, 'https://mangaquest.onrender.com/images/wallpaperflare.com_wallpaper (1).jpg', {
         reply_markup: {
             inline_keyboard: [
                 [{ text: 'test button', callback_data: 'test', hide: true }],
@@ -48,7 +48,15 @@ bot.command("inline", (ctx) => {
     });
 });
 
-
+bot.command("login", (ctx) => {
+    ctx.reply("Please enter your email:");
+    bot.on("text", (ctx) => {
+    const userMessage = ctx.message.text; // Assign the user's message to a variable
+    // Process the user's input as needed
+    ctx.reply(userMessage);
+    console.log(ctx.update.message.chat.id);
+});
+});
 
 
 
