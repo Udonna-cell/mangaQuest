@@ -18,7 +18,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 // Example: Respond to /start command
 bot.start((ctx) => {
     const chatId = 1948498964; // Replace with your actual chat ID (without quotes)
-    bot.telegram.sendPhoto(chatId, './public/images/img2.png', {
+    bot.telegram.sendPhoto(chatId, 'https://mangaquest.onrender.com/images/img.jpg', {
         reply_markup: {
             inline_keyboard: [
                 [{ text: 'test button', callback_data: 'test', hide: true }],
