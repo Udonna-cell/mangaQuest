@@ -13,6 +13,8 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "mysql": "^2.18.1",
+    "pdfkit": "^0.15.0",
     "pug": "2.0.0-beta11",
     "sass": "^1.77.8",
     "telegraf": "^4.16.3"

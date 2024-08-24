@@ -1,5 +1,6 @@
 require('dotenv').config()
 var createError = require('http-errors');
+var mysql = require('mysql');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -10,7 +11,16 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+con = mysql.createConnection({
+  host: "localhost",
+  user: "admin",
+  password: ""
+});
 
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("\nConnected!");
+});
 
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -18,7 +28,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 // Example: Respond to /start command
 bot.start((ctx) => {
     const chatId = ctx.update.message.chat.id; // Replace with your actual chat ID (without quotes)
-    bot.telegram.sendPhoto(chatId, 'https://mangaquest.onrender.com/images/wallpaperflare.com_wallpaper (1).jpg', {
+    bot.telegram.sendPhoto(chatId, 'https://raw.githubusercontent.com/Udonna-cell/mangaQuest/master/public/images/wallpaperflare.com_wallpaper%20(1).jpg', {
         reply_markup: {
             inline_keyboard: [
                 [{ text: 'test button', callback_data: 'test', hide: true }],
@@ -54,7 +64,7 @@ bot.command("login", (ctx) => {
     const userMessage = ctx.message.text; // Assign the user's message to a variable
     // Process the user's input as needed
     ctx.reply(userMessage);
-    console.log(ctx.update.message.chat.id);
+    console.log(ctx.update);
 });
 });
 
