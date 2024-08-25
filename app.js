@@ -4,11 +4,12 @@ var mysql = require("mysql");
 var express = require("express");
 var path = require("path");
 var fs = require("fs");
-var axios = require("axios");
+
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const { Telegraf } = require("telegraf");
 
+const Search = require("./utility/search");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
@@ -41,7 +42,8 @@ bot.start((ctx) => {
         //     [{ text: 'test button', callback_data: 'test', hide: true }],
         // ],
       },
-      caption: `Welcome ${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name} to MangaQuest bot where you can easily search, read and download your favourite mangas\n\nHere are some common used commands\n\nSearch for a manga using the command /search`,
+      caption: `Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest bot where you can easily search, read and download your favourite mangas\n\n<pre>Here are some common used commands</pre>\n\nSearch for a manga using the command /search`,
+      parse_mode: "HTML",
     }
   );
   // ctx.reply(`Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest`, {parse_mode: "HTML"});
@@ -76,63 +78,27 @@ bot.command("inline", (ctx) => {
 
 bot.command("search", (ctx) => {
   isWaitingReply = true;
-  ctx.reply("Enter a Manga title:");
 
   bot.on("text", (ctx) => {
+    const userMessage = ctx.message.text;
     const chatId = ctx.update.message.chat.id;
-    const userMessage = ctx.message.text; // Assign the user's message to a variable
-    let Manga = {};
-    axios
-      .get("https://api.mangadex.org/manga", {
-        params: {
-          title: userMessage,
+    async function display(params, id) {
+      let {results, MangaID, MangaCover, MangaPlot, MangaTitle} = await Search(params);
+      // console.log(respond, "gdh");
+      bot.telegram.sendPhoto(id, MangaCover, {
+        reply_markup: {
+          // inline_keyboard: [
+          //     [{ text: 'test button', callback_data: 'test', hide: true }],
+          // ],
         },
-      })
-      .then(({ data }) => {
-        Manga.id = data.data[0].id;
-        Manga.type = data.data[0].type;
-        Manga.title = data.data[0].attributes.title.en;
-        Manga.description = data.data[0].attributes.description.en;
-
-        let coverArt = "";
-        let fileName = "";
-        // getting manga cover
-        axios
-          .get(
-            `https://api.mangadex.org/cover?limit=10&manga%5B%5D=${Manga.id}&order%5BcreatedAt%5D=asc&order%5BupdatedAt%5D=asc&order%5Bvolume%5D=asc`
-          )
-          .then((d) => {
-            coverArt = d.data.data[0].id;
-
-            axios
-              .get(`https://api.mangadex.org/cover/${coverArt}`)
-              .then((d) => {
-                fileName = d.data.data.attributes.fileName;
-                // console.log(fileName);
-                Manga.cover = `https://uploads.mangadex.org/covers/${Manga.id}/${fileName}`;
-                // console.log(Manga.cover);
-
-                bot.telegram.sendPhoto(
-                  chatId,
-                  Manga.cover,
-                  {
-                    reply_markup: {
-                      // inline_keyboard: [
-                      //     [{ text: 'test button', callback_data: 'test', hide: true }],
-                      // ],
-                    },
-                    caption: `${Manga.title}\nType: ${Manga.type}\n${Manga.description}`,
-                  }
-                );
-              });
-            // console.log(coverArt);
-          });
-
-        // console.log(Manga);
+        caption: `${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`,
       });
-    // Process the user's input as needed
-    // ctx.reply(userMessage);
-    // console.log(ctx.update);
+      // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
+      // ctx.telegram.sendPhoto()
+    }
+    display(userMessage, chatId);
+    //
+    // console.log(ctx);
   });
 });
 
