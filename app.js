@@ -78,7 +78,7 @@ bot.command("inline", (ctx) => {
 
 bot.command("search", (ctx) => {
   isWaitingReply = true;
-
+  ctx.reply("Enter a Manga Title:")
   bot.on("text", (ctx) => {
     const userMessage = ctx.message.text;
     const chatId = ctx.update.message.chat.id;

@@ -1,4 +1,5 @@
 const axios = require("axios");
+const trim = require("./trim");
 
 async function Search(title) {
   let baseUrl = "https://api.mangadex.org/manga";
@@ -7,7 +8,8 @@ async function Search(title) {
     const results = await getResult(baseUrl, title);
     const MangaID = await getId(baseUrl, title)
     const MangaTitle = await getTitle(baseUrl, title)
-    const MangaPlot = await getPlot(baseUrl, title)
+    let MangaPlot = await getPlot(baseUrl, title)
+    MangaPlot = trim(MangaPlot, 120)
     const MangaCover = await getCover(MangaID)
     // console.log(MangaID);
     return {results, MangaID, MangaCover, MangaPlot, MangaTitle}
