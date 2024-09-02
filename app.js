@@ -28,6 +28,11 @@ var app = express();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 let isWaitingReply = false;
+let userMessage = "mangaQuest";
+let chatId = 0;
+let totalManga = 0
+let mangaIndex = 0
+let msgId = 0
 
 // Example: Respond to /start command
 bot.start((ctx) => {
@@ -42,7 +47,7 @@ bot.start((ctx) => {
         //     [{ text: 'test button', callback_data: 'test', hide: true }],
         // ],
       },
-      caption: `Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest bot where you can easily search, read and download your favourite mangas\n\n<pre>Here are some common used commands</pre>\n\nSearch for a manga using the command /search`,
+      caption: `Welcome <b><b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b></b> to MangaQuest bot where you can easily search, read and download your favourite mangas\n\n<pre>Here are some common used commands</pre>\n\nSearch for a manga using the command /search`,
       parse_mode: "HTML",
     }
   );
@@ -75,33 +80,71 @@ bot.command("inline", (ctx) => {
     },
   });
 });
-
+async function search(text,id) {
+  // body...
+  let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(text);
+        // console.log(respond, "gdh");
+        bot.telegram.sendPhoto(id, MangaCover, {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: 'PREV', callback_data: 'test', hide: true }, { text: '4 / 56', callback_data: 'test', hide: true }, { text: 'NEXT', callback_data: 'test', hide: true }],
+              [{ text: 'Download 🚀', callback_data: 'btn_1', hide: true }],
+            ],
+          },
+          caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
+        }).then((message) => {
+  msgId = message.message_id;});
+}
 bot.command("search", (ctx) => {
   isWaitingReply = true;
   ctx.reply("Enter a Manga Title:")
   bot.on("text", (ctx) => {
-    const userMessage = ctx.message.text;
-    const chatId = ctx.update.message.chat.id;
-    async function display(params, id) {
-      let {results, MangaID, MangaCover, MangaPlot, MangaTitle} = await Search(params);
-      // console.log(respond, "gdh");
-      bot.telegram.sendPhoto(id, MangaCover, {
-        reply_markup: {
-          // inline_keyboard: [
-          //     [{ text: 'test button', callback_data: 'test', hide: true }],
-          // ],
-        },
-        caption: `${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`,
-      });
-      // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
-      // ctx.telegram.sendPhoto()
+    if (isWaitingReply) {
+      // console.log(ctx.update.message, ">>>>>\n\n>>>");
+      userMessage = ctx.message.text;
+      chatId = ctx.update.message.chat.id;
+      // async function display(params, id) {
+      //   let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(params);
+      //   // console.log(respond, "gdh");
+      //   bot.telegram.sendPhoto(id, MangaCover, {
+      //     reply_markup: {
+      //       inline_keyboard: [
+      //         [{ text: 'PREV', callback_data: 'test', hide: true }, { text: '4 / 56', callback_data: 'test', hide: true }, { text: 'NEXT', callback_data: 'test', hide: true }],
+      //         [{ text: 'Download 🚀', callback_data: 'btn_1', hide: true }],
+      //       ],
+      //     },
+      //     caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
+      //   });
+      //   // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
+      //   // ctx.telegram.sendPhoto()
+      // }
+      search(userMessage, chatId);
+      isWaitingReply = false
+      // msgId = ctx.update.message.message_id
+      // console.log(ctx.update.message.message_id);
+    } else {
+      ctx.reply("Use the /help to explor more")
     }
-    display(userMessage, chatId);
-    //
-    // console.log(ctx);
-  });
+  })
+});
+bot.command('help', (ctx) => {
+  ctx.reply('You clicked help');
+});
+bot.command('random', (ctx) => {
+  ctx.reply('You clicked random');
+});
+bot.action('btn_1', (ctx) => {
+  ctx.reply('You clicked Button 1');
+  // Delete the original message
+bot.telegram.deleteMessage(chatId, msgId);
+
+  search(userMessage, chatId);
+  // console.log(ctx.update.message.message_id);
 });
 
+// bot.action('btn_2', (ctx) => {
+//   ctx.reply('You clicked Button 2');
+// });
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
