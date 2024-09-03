@@ -1,9 +1,9 @@
 const axios = require("axios");
 
-async function getId(base, title) {
+async function getId(base, title, limit, offset) {
   // https://api.mangadex.org/manga
   const response = await axios.get(base, {
-    params: {},
+    params: { title: title, limit, offset },
   });
 
   return response.data.data[0].id;

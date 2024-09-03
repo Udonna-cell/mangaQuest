@@ -31,8 +31,8 @@ let isWaitingReply = false;
 let userMessage = "mangaQuest";
 let chatId = 0;
 let totalManga = 0
-let mangaIndex = 0
-let msgId = 0
+let mangaIndex = 0;
+let msgId = 0;
 
 // Example: Respond to /start command
 bot.start((ctx) => {
@@ -80,24 +80,38 @@ bot.command("inline", (ctx) => {
     },
   });
 });
-async function search(text,id) {
+async function search(text, id,limit, offset) {
   // body...
-  let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(text);
-        // console.log(respond, "gdh");
-        bot.telegram.sendPhoto(id, MangaCover, {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: 'PREV', callback_data: 'test', hide: true }, { text: '4 / 56', callback_data: 'test', hide: true }, { text: 'NEXT', callback_data: 'test', hide: true }],
-              [{ text: 'Download 🚀', callback_data: 'btn_1', hide: true }],
-            ],
-          },
-          caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
-        }).then((message) => {
-  msgId = message.message_id;});
+  let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
+    text,
+    limit,
+    offset
+  );
+  console.log(offset);
+  totalManga = results
+  bot.telegram
+    .sendPhoto(id, MangaCover, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "PREV", callback_data: "prev", hide: true },
+            { text: `${mangaIndex + 1} / ${results}`, callback_data: "test", hide: true },
+            { text: "NEXT", callback_data: "next", hide: true },
+          ],
+          [{ text: "Download 🚀", callback_data: "btn_1", hide: true }],
+        ],
+      },
+      caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
+    })
+    .then((message) => {
+      msgId = message.message_id;
+    });
+    
 }
 bot.command("search", (ctx) => {
   isWaitingReply = true;
-  ctx.reply("Enter a Manga Title:")
+  mangaIndex = 0
+  ctx.reply("Enter a Manga Title:");
   bot.on("text", (ctx) => {
     if (isWaitingReply) {
       // console.log(ctx.update.message, ">>>>>\n\n>>>");
@@ -118,27 +132,43 @@ bot.command("search", (ctx) => {
       //   // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
       //   // ctx.telegram.sendPhoto()
       // }
-      search(userMessage, chatId);
-      isWaitingReply = false
+      search(userMessage, chatId,1,mangaIndex);
+      isWaitingReply = false;
       // msgId = ctx.update.message.message_id
       // console.log(ctx.update.message.message_id);
     } else {
-      ctx.reply("Use the /help to explor more")
+      ctx.reply("Use the /help to explor more");
     }
-  })
+  });
 });
-bot.command('help', (ctx) => {
-  ctx.reply('You clicked help');
+bot.command("help", (ctx) => {
+  ctx.reply("You clicked help");
 });
-bot.command('random', (ctx) => {
-  ctx.reply('You clicked random');
+bot.command("random", (ctx) => {
+  ctx.reply("You clicked random");
 });
-bot.action('btn_1', (ctx) => {
-  ctx.reply('You clicked Button 1');
+bot.action("next", (ctx) => {
+  // ctx.reply("You clicked Button 1");
+  if (!(mangaIndex + 1 == totalManga)) {
+    mangaIndex += 1
+  }
+  
   // Delete the original message
-bot.telegram.deleteMessage(chatId, msgId);
+  bot.telegram.deleteMessage(chatId, msgId);
 
-  search(userMessage, chatId);
+  search(userMessage, chatId,1,mangaIndex);
+  // console.log(ctx.update.message.message_id);
+});
+bot.action("prev", (ctx) => {
+  // ctx.reply("You clicked Button 1");
+  if (!(mangaIndex == 0)) {
+    mangaIndex -= 1
+  }
+  
+  // Delete the original message
+  bot.telegram.deleteMessage(chatId, msgId);
+
+  search(userMessage, chatId,1,mangaIndex);
   // console.log(ctx.update.message.message_id);
 });
 

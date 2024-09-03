@@ -1,15 +1,19 @@
 const axios = require("axios");
 const trim = require("./trim");
 const getId = require("./getId");
+// const getId = require("./getId");
+// const getId = require("./getId");
+// const getId = require("./getId");
 
-async function Search(title) {
+async function Search(title,limit, offset) {
   let baseUrl = "https://api.mangadex.org/manga";
   // let results = getResult(baseUrl, title);
   try {
     const results = await getResult(baseUrl, title);
-    const MangaID = await getId(baseUrl, title)
-    const MangaTitle = await getTitle(baseUrl, title)
-    let MangaPlot = await getPlot(baseUrl, title)
+    const MangaID = await getId(baseUrl, title,limit, offset)
+    const MangaTitle = await getTitle(baseUrl, title,limit, offset)
+    let MangaPlot = await getPlot(baseUrl, title,limit, offset)
+    // console.log(MangaPlot);
     MangaPlot = trim(MangaPlot, 120)
     const MangaCover = await getCover(MangaID)
     console.log(MangaID);
@@ -73,12 +77,12 @@ async function Search(title) {
   //   });
 }
 
-function getType() {}
-function getAverageRate() {}
-function getStatus() {}
-function getVolumeCount() {}
-function getTotalChapters() {}
-function getGenre() {}
+// function getType() {}
+// function getAverageRate() {}
+// function getStatus() {}
+// function getVolumeCount() {}
+// function getTotalChapters() {}
+// function getGenre() {}
 
 
 async function getCover(id) {
@@ -100,7 +104,7 @@ async function getCover(id) {
   // console.log(i, "rr");
   return i; // return i for later usage
 }
-async function getPlot(base, title) {
+async function getPlot(base, title,limit, offset) {
   let i = 0;
 
   async function worker() {
@@ -108,6 +112,8 @@ async function getPlot(base, title) {
       const response = await axios.get(base, {
         params: {
           title: title,
+          limit,
+          offset
         },
       });
       i = response.data.data[0].attributes.description.en;
@@ -134,7 +140,7 @@ async function getResult(base, title) {
           title: title,
         },
       });
-      i = response.data.data.length;
+      i = response.data.total;
       return i;
     } catch (error) {
       console.error("Error occurred:", error);
@@ -147,7 +153,7 @@ async function getResult(base, title) {
   // console.log(i, "rr");
   return i; // return i for later usage
 }
-async function getTitle(base, title) {
+async function getTitle(base, title,limit, offset) {
   let i = 0;
 
   async function worker() {
@@ -155,6 +161,8 @@ async function getTitle(base, title) {
       const response = await axios.get(base, {
         params: {
           title: title,
+          limit,
+          offset
         },
       });
       i = response.data.data[0].attributes.title.en;
