@@ -10,6 +10,7 @@ var logger = require("morgan");
 const { Telegraf } = require("telegraf");
 
 const Search = require("./utility/search");
+const trim = require("./utility/trim")
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
@@ -35,25 +36,44 @@ let mangaIndex = 0;
 let msgId = 0;
 
 // Example: Respond to /start command
+// bot.start((ctx) => {
+//   const chatId = ctx.update.message.chat.id; // Replace with your actual chat ID (without quotes)
+
+
+//   // ctx.reply(`Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest`, {parse_mode: "HTML"});
+// });
 bot.start((ctx) => {
-  const chatId = ctx.update.message.chat.id; // Replace with your actual chat ID (without quotes)
-
-  bot.telegram.sendPhoto(
-    chatId,
-    "https://raw.githubusercontent.com/Udonna-cell/mangaQuest/master/public/images/wallpaperflare.com_wallpaper%20(1).jpg",
-    {
-      reply_markup: {
-        // inline_keyboard: [
-        //     [{ text: 'test button', callback_data: 'test', hide: true }],
-        // ],
-      },
-      caption: `Welcome <b><b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b></b> to MangaQuest bot where you can easily search, read and download your favourite mangas\n\n<pre>Here are some common used commands</pre>\n\nSearch for a manga using the command /search`,
-      parse_mode: "HTML",
+  chatId = ctx.update.message.chat.id;
+  // const chatId = ctx.update.message.chat.id;
+  const args = ctx.message.text.split(' ');
+  if (args.length > 1) {
+    const param = args[1]; // Extract the parameter after /start
+    if (param.startsWith('search_')) {
+      const searchTerm = param.replace('search_', '');
+      // Handle the search term
+      userMessage = searchTerm
+      search(userMessage, chatId, 1, mangaIndex);
+      // ctx.reply(`Searching for: ${searchTerm}`);
+      // Add your search logic here
+    } else {
+      ctx.reply('Invalid parameter.');
     }
-  );
-  // ctx.reply(`Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest`, {parse_mode: "HTML"});
+  } else {
+    bot.telegram.sendPhoto(
+      chatId,
+      "https://raw.githubusercontent.com/Udonna-cell/mangaQuest/master/public/images/wallpaperflare.com_wallpaper%20(1).jpg",
+      {
+        reply_markup: {
+          // inline_keyboard: [
+          //     [{ text: 'test button', callback_data: 'test', hide: true }],
+          // ],
+        },
+        caption: `Welcome <b><b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b></b> to MangaQuest bot where you can easily search, read and download your favourite mangas\n\n<pre>Here are some common used commands</pre>\n\nSearch for a manga using the command /search`,
+        parse_mode: "HTML",
+      }
+    );
+  }
 });
-
 // Example: Handle messages containing 'hi'
 bot.hears("hi", (ctx) => ctx.reply("Hey there!"));
 bot.command("inline", (ctx) => {
@@ -80,14 +100,14 @@ bot.command("inline", (ctx) => {
     },
   });
 });
-async function search(text, id,limit, offset) {
+async function search(text, id, limit, offset) {
   // body...
   let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
     text,
     limit,
     offset
   );
-  console.log(offset);
+  // console.log(offset);
   totalManga = results
   bot.telegram
     .sendPhoto(id, MangaCover, {
@@ -106,7 +126,7 @@ async function search(text, id,limit, offset) {
     .then((message) => {
       msgId = message.message_id;
     });
-    
+
 }
 bot.command("search", (ctx) => {
   isWaitingReply = true;
@@ -132,7 +152,7 @@ bot.command("search", (ctx) => {
       //   // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
       //   // ctx.telegram.sendPhoto()
       // }
-      search(userMessage, chatId,1,mangaIndex);
+      search(userMessage, chatId, 1, mangaIndex);
       isWaitingReply = false;
       // msgId = ctx.update.message.message_id
       // console.log(ctx.update.message.message_id);
@@ -152,11 +172,11 @@ bot.action("next", (ctx) => {
   if (!(mangaIndex + 1 == totalManga)) {
     mangaIndex += 1
   }
-  
+
   // Delete the original message
   bot.telegram.deleteMessage(chatId, msgId);
 
-  search(userMessage, chatId,1,mangaIndex);
+  search(userMessage, chatId, 1, mangaIndex);
   // console.log(ctx.update.message.message_id);
 });
 bot.action("prev", (ctx) => {
@@ -164,17 +184,105 @@ bot.action("prev", (ctx) => {
   if (!(mangaIndex == 0)) {
     mangaIndex -= 1
   }
-  
+
   // Delete the original message
   bot.telegram.deleteMessage(chatId, msgId);
 
-  search(userMessage, chatId,1,mangaIndex);
+  search(userMessage, chatId, 1, mangaIndex);
   // console.log(ctx.update.message.message_id);
 });
 
 // bot.action('btn_2', (ctx) => {
 //   ctx.reply('You clicked Button 2');
 // });
+
+bot.on('inline_query', async (ctx) => {
+  const query = ctx.inlineQuery.query;
+  // Process the query and generate results
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 0);
+
+  const results = [
+    {
+      type: 'photo',
+      id: `${Math.floor(Math.random() * 64)}`,
+      title: `${MangaTitle}`,
+      photo_url: `${MangaCover}`,
+      thumb_url: `${MangaCover}`,
+      caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+      description: `${trim(MangaPlot, 10)}`,
+      // input_message_content: {
+      //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+      // }
+    }
+  ];
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 1);
+  results.push({
+    type: 'photo',
+    id: `${Math.floor(Math.random() * 64)}`,
+    title: `${MangaTitle}`,
+    photo_url: `${MangaCover}`,
+    thumb_url: `${MangaCover}`,
+    caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+    description: `${trim(MangaPlot, 10)}`,
+    // input_message_content: {
+    //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+    // }
+  })
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 2);
+  results.push({
+    type: 'photo',
+    id: `${Math.floor(Math.random() * 64)}`,
+    title: `${MangaTitle}`,
+    photo_url: `${MangaCover}`,
+    thumb_url: `${MangaCover}`,
+    caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+    description: `${trim(MangaPlot, 10)}`,
+    // input_message_content: {
+    //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+    // }
+  })
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 3);
+  results.push({
+    type: 'photo',
+    id: `${Math.floor(Math.random() * 64)}`,
+    title: `${MangaTitle}`,
+    photo_url: `${MangaCover}`,
+    thumb_url: `${MangaCover}`,
+    caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+    description: `${trim(MangaPlot, 10)}`,
+    // input_message_content: {
+    //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+    // }
+  })
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 4);
+  results.push({
+    type: 'photo',
+    id: `${Math.floor(Math.random() * 64)}`,
+    title: `${MangaTitle}`,
+    photo_url: `${MangaCover}`,
+    thumb_url: `${MangaCover}`,
+    caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+    description: `${trim(MangaPlot, 10)}`,
+    // input_message_content: {
+    //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+    // }
+  })
+  var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(query, 1, 5);
+  results.push({
+    type: 'photo',
+    id: `${Math.floor(Math.random() * 64)}`,
+    title: `${MangaTitle}`,
+    photo_url: `${MangaCover}`,
+    thumb_url: `${MangaCover}`,
+    caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`,
+    description: `${trim(MangaPlot, 10)}`,
+    // input_message_content: {
+    //   message_text: `${MangaTitle}\n\n${trim(MangaPlot, 50)}`
+    // }
+  })
+  // console.log(results);
+  await ctx.answerInlineQuery(results);
+});
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
