@@ -16,7 +16,7 @@ async function Search(title,limit, offset) {
     // console.log(MangaPlot);
     MangaPlot = trim(MangaPlot, 120)
     const MangaCover = await getCover(MangaID)
-    console.log(MangaID);
+    // console.log(MangaID);
     return {results, MangaID, MangaCover, MangaPlot, MangaTitle}
 
   } catch (error) {

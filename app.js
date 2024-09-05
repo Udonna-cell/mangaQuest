@@ -12,6 +12,7 @@ const { Telegraf } = require("telegraf");
 
 const Search = require("./utility/search");
 const trim = require("./utility/trim");
+const getChapter = require("./utility/getChapter")
 const generateUniqueId = require("./utility/generateUniqueId");
 const getManga = require("./utility/getManga")
 const getRating = require("./utility/getRating")
@@ -39,6 +40,7 @@ let chatId = 0;
 let totalManga = 0;
 let mangaIndex = 0;
 let msgId = 0;
+let bookID = 0
 
 // Example: Respond to /start command
 // bot.start((ctx) => {
@@ -56,7 +58,7 @@ bot.start((ctx) => {
       const searchTerm = param.replace("search_", "");
       // Handle the search term
       userMessage = searchTerm;
-      console.log(userMessage);
+      // console.log(userMessage);
       async function smaile(txt) {
         const { data } = await axios.get(
           `https://api.mangadex.org/manga/${txt}?includes[]=author&includes[]=artist&includes[]=cover_art`,
@@ -72,6 +74,9 @@ bot.start((ctx) => {
         let rate = await getRating(id);
         rate = rate.toFixed(2)
 
+        // saving manga id
+        bookID = id
+
 
         // search(data.data.attributes.title.en, chatId, 1, mangaIndex);
         bot.telegram.sendPhoto(chatId, cover, {
@@ -86,7 +91,7 @@ bot.start((ctx) => {
               //   },
               //   { text: "NEXT", callback_data: "next", hide: true },
               // ],
-              [{ text: "Download 🚀", callback_data: "btn_1", hide: true }],
+              [{ text: "Download 🚀", callback_data: "download", hide: true }],
             ],
           },
           caption: `📖${title.en}\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(description.en, 50)}`,
@@ -147,6 +152,8 @@ async function search(text, id, limit, offset) {
     limit,
     offset
   );
+  // saving manga id
+  bookID = MangaID
   // console.log(offset);
   totalManga = results;
   bot.telegram
@@ -162,7 +169,7 @@ async function search(text, id, limit, offset) {
             },
             { text: "NEXT", callback_data: "next", hide: true },
           ],
-          [{ text: "Download 🚀", callback_data: "btn_1", hide: true }],
+          [{ text: "Download 🚀", callback_data: "download", hide: true }],
         ],
       },
       caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
@@ -234,6 +241,10 @@ bot.action("prev", (ctx) => {
   search(userMessage, chatId, 1, mangaIndex);
   // console.log(ctx.update.message.message_id);
 });
+bot.action("download", (ctx)=>{
+  getChapter(bookID)
+  ctx.reply(`Downloading please wait....`)
+})
 
 // bot.action('btn_2', (ctx) => {
 //   ctx.reply('You clicked Button 2');
