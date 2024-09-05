@@ -13,6 +13,7 @@ const { Telegraf } = require("telegraf");
 const Search = require("./utility/search");
 const trim = require("./utility/trim");
 const generateUniqueId = require("./utility/generateUniqueId");
+const getManga = require("./utility/getManga")
 const getRating = require("./utility/getRating")
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -250,174 +251,28 @@ bot.on("inline_query", async (ctx) => {
       });
     }
     // Process the query and generate results
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
+    var data = await getManga(
       query,
-      1,
+      40,
       0
     );
-
-    const results = [
-      {
+    
+    const results = [];
+    data.forEach(manga => {
+      results.push({
         type: "photo",
         id: generateUniqueId(16),
-        title: `${MangaTitle}`,
-        photo_url: `${MangaCover}`,
-        thumb_url: `${MangaCover}`,
-        caption: `${MangaTitle}\n\n${trim(
-          MangaPlot,
+        title: `${manga.title}`,
+        photo_url: `${manga.cover}`,
+        thumb_url: `${manga.cover}`,
+        caption: `${manga.title}\n\n${trim(
+          manga.description,
           50
-        )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-        description: `${trim(MangaPlot, 10)}`,
-        // reply_markup: Markup.inlineKeyboard([
-        //   Markup.button.url(
-        //     `Search ${MangaTitle}`,
-        //     `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`
-        //   ),
-        // ]),
-      },
-    ];
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-      query,
-      1,
-      1
-    );
-    results.push({
-      type: "photo",
-      id: generateUniqueId(16),
-      title: `${MangaTitle}`,
-      photo_url: `${MangaCover}`,
-      thumb_url: `${MangaCover}`,
-      caption: `${MangaTitle}\n\n${trim(
-        MangaPlot,
-        50
-      )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-      description: `${trim(MangaPlot, 10)}`,
-      // reply_markup: {
-      //   inline_keyboard: [
-      //     /* Also, we can have URL buttons. */
-      //     [
-      //       {
-      //         text: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //         url: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //       },
-      //     ],
-      //   ],
-      // },
-    });
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-      query,
-      1,
-      2
-    );
-    results.push({
-      type: "photo",
-      id: generateUniqueId(16),
-      title: `${MangaTitle}`,
-      photo_url: `${MangaCover}`,
-      thumb_url: `${MangaCover}`,
-      caption: `${MangaTitle}\n\n${trim(
-        MangaPlot,
-        50
-      )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-      description: `${trim(MangaPlot, 10)}`,
-      // reply_markup: {
-      //   inline_keyboard: [
-      //     /* Also, we can have URL buttons. */
-      //     [
-      //       {
-      //         text: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //         url: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //       },
-      //     ],
-      //   ],
-      // },
-    });
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-      query,
-      1,
-      3
-    );
-    results.push({
-      type: "photo",
-      id: generateUniqueId(16),
-      title: `${MangaTitle}`,
-      photo_url: `${MangaCover}`,
-      thumb_url: `${MangaCover}`,
-      caption: `${MangaTitle}\n\n${trim(
-        MangaPlot,
-        50
-      )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-      description: `${trim(MangaPlot, 10)}`,
-      // reply_markup: {
-      //   inline_keyboard: [
-      //     /* Also, we can have URL buttons. */
-      //     [
-      //       {
-      //         text: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //         url: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //       },
-      //     ],
-      //   ],
-      // },
-    });
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-      query,
-      1,
-      4
-    );
-    results.push({
-      type: "photo",
-      id: generateUniqueId(16),
-      title: `${MangaTitle}`,
-      photo_url: `${MangaCover}`,
-      thumb_url: `${MangaCover}`,
-      caption: `${MangaTitle}\n\n${trim(
-        MangaPlot,
-        50
-      )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-      description: `${trim(MangaPlot, 10)}`,
-      // reply_markup: {
-      //     inline_keyboard: [
-      //       /* Also, we can have URL buttons. */
-      //       [
-      //         {
-      //           text: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //           url: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //         },
-      //       ],
-      //     ],
-      //   },
-    });
-
-    var { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-      query,
-      1,
-      5
-    );
-    results.push({
-      type: "photo",
-      id: generateUniqueId(16),
-      title: `${MangaTitle}`,
-      photo_url: `${MangaCover}`,
-      thumb_url: `${MangaCover}`,
-      caption: `${MangaTitle}\n\n${trim(
-        MangaPlot,
-        50
-      )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaID}`,
-      description: `${trim(MangaPlot, 10)}`,
-      // reply_markup: {
-      //     inline_keyboard: [
-      //       /* Also, we can have URL buttons. */
-      //       [
-      //         {
-      //           text: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //           url: `https://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-      //         },
-      //       ],
-      //     ],
-      //   },
-    });
-    // console.log(results);
+        )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${manga.id}`,
+        description: `${trim(manga.description, 10)}`,
+      })
+    })
+    // console.log(data);
     await ctx.answerInlineQuery(results);
   } catch (error) {
     console.error("Error while processing inline query:", error);
