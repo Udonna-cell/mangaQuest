@@ -18,9 +18,10 @@ async function getChapter(mangaID) {
   }
 
   data = group(data)
+  return data
   // console.log(Math.floor(total / 100))
-  console.log(data.length, ">>> volumes here")
-  console.log(data);
+  // console.log(data.length, ">>> volumes here")
+  // console.log(data);
   // return response.data.data[0].id;
 }
 

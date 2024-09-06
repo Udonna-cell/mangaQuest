@@ -8,17 +8,17 @@ const axios = require("axios");
 
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const { Telegraf } = require("telegraf");
+const { Telegraf, Markup } = require("telegraf");
 
 const Search = require("./utility/search");
 const trim = require("./utility/trim");
-const getChapter = require("./utility/getChapter")
+const getChapter = require("./utility/getChapter");
 const generateUniqueId = require("./utility/generateUniqueId");
-const getManga = require("./utility/getManga")
-const getRating = require("./utility/getRating")
+const download = require("./utility/download")
+const getManga = require("./utility/getManga");
+const getRating = require("./utility/getRating");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-const { Markup } = require("telegraf");
 
 var app = express();
 
@@ -40,7 +40,7 @@ let chatId = 0;
 let totalManga = 0;
 let mangaIndex = 0;
 let msgId = 0;
-let bookID = 0
+let bookID = 0;
 
 // Example: Respond to /start command
 // bot.start((ctx) => {
@@ -66,17 +66,16 @@ bot.start((ctx) => {
             params: { limit: 1, offset: 0 },
           }
         );
-        let {relationships, attributes, id} = data.data
-        let {title, description, year} = attributes
-        let cover = relationships.filter(obj => obj.type == "cover_art")
-        cover = `https://uploads.mangadex.org/covers/${id}/${cover[0].attributes.fileName}`
+        let { relationships, attributes, id } = data.data;
+        let { title, description, year } = attributes;
+        let cover = relationships.filter((obj) => obj.type == "cover_art");
+        cover = `https://uploads.mangadex.org/covers/${id}/${cover[0].attributes.fileName}`;
         // console.log(cover);
         let rate = await getRating(id);
-        rate = rate.toFixed(2)
+        rate = rate.toFixed(2);
 
         // saving manga id
-        bookID = id
-
+        bookID = id;
 
         // search(data.data.attributes.title.en, chatId, 1, mangaIndex);
         bot.telegram.sendPhoto(chatId, cover, {
@@ -94,7 +93,12 @@ bot.start((ctx) => {
               [{ text: "Download 🚀", callback_data: "download", hide: true }],
             ],
           },
-          caption: `📖${title.en}\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(description.en, 50)}`,
+          caption: `📖${
+            title.en
+          }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+            description.en,
+            50
+          )}`,
         });
       }
       smaile(userMessage);
@@ -153,7 +157,7 @@ async function search(text, id, limit, offset) {
     offset
   );
   // saving manga id
-  bookID = MangaID
+  bookID = MangaID;
   // console.log(offset);
   totalManga = results;
   bot.telegram
@@ -241,10 +245,68 @@ bot.action("prev", (ctx) => {
   search(userMessage, chatId, 1, mangaIndex);
   // console.log(ctx.update.message.message_id);
 });
-bot.action("download", (ctx)=>{
-  getChapter(bookID)
-  ctx.reply(`Downloading please wait....`)
-})
+// Handles the "download" action triggered by the bot
+bot.action("download", (ctx) => {
+  // Assuming bookID is a variable available in the context
+  getChapter(bookID).then((data) => {
+    // data should be an array of volumes, each containing chapters
+    // Initialize an array to hold the volume buttons
+    let buttons = [];
+
+    // Iterate over each volume in the data
+    data.forEach((obj, volume) => {
+      // For each volume, create an action handler that triggers when the user selects a volume
+      bot.action(`volume_${volume}`, (ctx) => {
+        let chapterButtons = []; // Array for the chapter buttons in each volume
+
+        // Iterate over each chapter within the volume
+        obj.forEach((chapter, i) => {
+          // Create an action for each chapter
+          bot.action(`chapter_${i}`, (ctx) => {
+            download(chapter).then(()=>{
+              ctx.replyWithDocument({source: "./test.pdf"})
+            }); // Call the download function (assumed to be defined elsewhere)
+            ctx.reply(`Downloading chapter ${i + 1} of volume ${volume + 1}`);
+            
+          });
+
+          // Push the chapter button for the current volume
+          chapterButtons.push([
+            {
+              text: `Volume ${volume + 1} - Chap. ${i + 1}`, // Button label showing volume and chapter
+              callback_data: `chapter_${i}`, // Callback data to trigger the chapter action
+              hide: true, // Hide after interaction
+            },
+          ]);
+        });
+
+        // Send the user the list of chapters for the selected volume
+        ctx.reply(`Pick a chapter from Volume ${volume + 1} to begin download :)`, {
+          reply_markup: {
+            inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+          },
+        });
+      });
+
+      // Add a button for the current volume
+      buttons.push([
+        {
+          text: `Vol. ${volume + 1} - Chap. ${obj.length}`, // Button label showing the volume and total chapters
+          callback_data: `volume_${volume}`, // Callback data to trigger the volume action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    });
+
+    // Send the user the list of volumes to choose from
+    ctx.reply(`Pick a Volume to begin download :)`, {
+      reply_markup: {
+        inline_keyboard: buttons, // Inline keyboard with volume buttons
+      },
+    });
+  });
+});
+
 
 // bot.action('btn_2', (ctx) => {
 //   ctx.reply('You clicked Button 2');
@@ -262,14 +324,10 @@ bot.on("inline_query", async (ctx) => {
       });
     }
     // Process the query and generate results
-    var data = await getManga(
-      query,
-      40,
-      0
-    );
-    
+    var data = await getManga(query, 40, 0);
+
     const results = [];
-    data.forEach(manga => {
+    data.forEach((manga) => {
       results.push({
         type: "photo",
         id: generateUniqueId(16),
@@ -281,8 +339,8 @@ bot.on("inline_query", async (ctx) => {
           50
         )}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${manga.id}`,
         description: `${trim(manga.description, 10)}`,
-      })
-    })
+      });
+    });
     // console.log(data);
     await ctx.answerInlineQuery(results);
   } catch (error) {
