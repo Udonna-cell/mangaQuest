@@ -44,6 +44,7 @@ function group(data) {
       preVolume = obj.attributes.volume
     }
   });
+  group.push(VolumeGroup)
  return group
 }
 
