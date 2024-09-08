@@ -263,12 +263,13 @@ bot.action("download", (ctx) => {
           // Create an action for each chapter
           bot.action(`chapter_${i}`, (ctx) => {
             // Call the download function (assumed to be defined elsewhere)
+            download(chapter, msgId, chatId, ctx).then(() => {
+              ctx.replyWithDocument({ source: "./test.pdf" })
+            });
             msgId = ctx.reply(`Downloading chapter ${i + 1} of volume ${volume + 1}`);
             // chatId = ctx.update.message.chat.id;
           });
-          download(chapter, msgId, chatId, ctx).then(() => {
-            ctx.replyWithDocument({ source: "./test.pdf" })
-          });
+          
 
           // Push the chapter button for the current volume
           chapterButtons.push([
