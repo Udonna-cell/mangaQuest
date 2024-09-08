@@ -165,9 +165,9 @@ async function getTitle(base, title,limit, offset) {
           offset
         },
       });
-      let {en} = (response.data.data[0].attributes.altTitles).filter(obj => "en" in obj)[0]
-      // console.log(en);
-      i = en || response.data.data[0].attributes.title.en;
+      let altTitle = (response.data.data[0].attributes.altTitles).filter(obj => "en" in obj)
+      
+      i = (altTitle.length > 0)? altTitle[0].en : response.data.data[0].attributes.title.en;
       return i;
     } catch (error) {
       console.error("Error occurred:", error);

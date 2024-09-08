@@ -36,7 +36,7 @@ async function download(chap, msgID, chatID, ctx) {
       console.log(data);
     });
 
-    console.log(url, ">>>>>>>>>>>");
+    console.log(`Successfully Downloaded page (${i} / ${pages.length})`);
     // ctx.telegram.editMessageText(chatID, msgID, null, `downloaded page ${i}`)
     // Open the image and get its dimensions
     const img = doc.openImage(`${imgPath}`);
