@@ -93,12 +93,11 @@ bot.start((ctx) => {
               [{ text: "Download 🚀", callback_data: "download", hide: true }],
             ],
           },
-          caption: `📖${
-            title.en
-          }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
-            description.en,
-            50
-          )}`,
+          caption: `📖${title.en
+            }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+              description.en,
+              50
+            )}`,
         });
       }
       smaile(userMessage);
@@ -263,11 +262,12 @@ bot.action("download", (ctx) => {
         obj.forEach((chapter, i) => {
           // Create an action for each chapter
           bot.action(`chapter_${i}`, (ctx) => {
-            download(chapter).then(()=>{
-              ctx.replyWithDocument({source: "./test.pdf"})
-            }); // Call the download function (assumed to be defined elsewhere)
-            ctx.reply(`Downloading chapter ${i + 1} of volume ${volume + 1}`);
-            
+            // Call the download function (assumed to be defined elsewhere)
+            msgId = ctx.reply(`Downloading chapter ${i + 1} of volume ${volume + 1}`);
+            // chatId = ctx.update.message.chat.id;
+          });
+          download(chapter, msgId, chatId, ctx).then(() => {
+            ctx.replyWithDocument({ source: "./test.pdf" })
           });
 
           // Push the chapter button for the current volume
