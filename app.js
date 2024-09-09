@@ -14,7 +14,7 @@ const Search = require("./utility/search");
 const trim = require("./utility/trim");
 const getChapter = require("./utility/getChapter");
 const generateUniqueId = require("./utility/generateUniqueId");
-const download = require("./utility/download")
+const download = require("./utility/download");
 const getManga = require("./utility/getManga");
 const getRating = require("./utility/getRating");
 var indexRouter = require("./routes/index");
@@ -41,6 +41,12 @@ let totalManga = 0;
 let mangaIndex = 0;
 let msgId = 0;
 let bookID = 0;
+let volume = 0;
+let chapter = 0;
+let displayVolume = 0;
+let displayChapter = 0;
+let volumeIndex = 0;
+let chapterIndex = 0;
 
 // Example: Respond to /start command
 // bot.start((ctx) => {
@@ -93,11 +99,12 @@ bot.start((ctx) => {
               [{ text: "Download 🚀", callback_data: "download", hide: true }],
             ],
           },
-          caption: `📖${title.en
-            }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
-              description.en,
-              50
-            )}`,
+          caption: `📖${
+            title.en
+          }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+            description.en,
+            50
+          )}`,
         });
       }
       smaile(userMessage);
@@ -247,71 +254,761 @@ bot.action("prev", (ctx) => {
 // Handles the "download" action triggered by the bot
 bot.action("download", (ctx) => {
   // Assuming bookID is a variable available in the context
-  getChapter(bookID).then((data) => {
+  getChapter(bookID).then(async (data) => {
     // data should be an array of volumes, each containing chapters
+
     // Initialize an array to hold the volume buttons
     let buttons = [];
+    volume = data;
+    volumeIndex = 0;
 
-    // Iterate over each volume in the data
-    data.forEach((obj, volume) => {
-      // For each volume, create an action handler that triggers when the user selects a volume
-      bot.action(`volume_${volume}`, (ctx) => {
-        let chapterButtons = []; // Array for the chapter buttons in each volume
+    // ordering buttons to display
+    let totalGroup = 0;
+    let groupRemain = 0;
+    // displayVolume = []
 
-        // Iterate over each chapter within the volume
-        obj.forEach((chapter, i) => {
-          // Create an action for each chapter
-          bot.action(`chapter_${i}`, (ctx) => {
-            // Call the download function (assumed to be defined elsewhere)
-            download(chapter, msgId, chatId, ctx).then(() => {
-              ctx.replyWithDocument({ source: "./test.pdf" })
-            });
-            msgId = ctx.reply(`Downloading chapter ${i + 1} of volume ${volume + 1}`);
-            // chatId = ctx.update.message.chat.id;
-          });
-          
+    if (volume.length - 5 == 0 || volume.length - 5 < 0) {
+      totalGroup = 1;
+      groupRemain = 0;
+      displayVolume = [totalGroup, groupRemain];
 
-          // Push the chapter button for the current volume
-          chapterButtons.push([
-            {
-              text: `Volume ${volume + 1} - Chap. ${i + 1}`, // Button label showing volume and chapter
-              callback_data: `chapter_${i}`, // Callback data to trigger the chapter action
-              hide: true, // Hide after interaction
-            },
-          ]);
-        });
-
-        // Send the user the list of chapters for the selected volume
-        ctx.reply(`Pick a chapter from Volume ${volume + 1} to begin download :)`, {
-          reply_markup: {
-            inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      if (volume.length - 5 < 0) {
+        let items = 5 - (5 - volume.length);
+        buttons = new Array(items).fill(0);
+        buttons = buttons.map((item, index) => [
+          {
+            text: `Volume ${index + 1}`, // Button label showing volume and chapter
+            callback_data: `Volume_${index}`, // Callback data to trigger the chapter action
+            hide: true, // Hide after interaction
           },
-        });
-      });
-
-      // Add a button for the current volume
-      buttons.push([
+        ]);
+      } else {
+        let items = 5;
+        buttons = new Array(items).fill(0);
+        buttons = buttons.map((item, index) => [
+          {
+            text: `Volume ${index + 1}`, // Button label showing volume and chapter
+            callback_data: `Volume_${index}`, // Callback data to trigger the chapter action
+            hide: true, // Hide after interaction
+          },
+        ]);
+      }
+      // buttons = new Array()
+    } else {
+      totalGroup = Math.floor(volume.length / 5) + 1;
+      groupRemain = volume.length % 5;
+      displayVolume = [totalGroup, groupRemain];
+      let items = 5;
+      buttons = new Array(items).fill(0);
+      buttons = buttons.map((item, index) => [
         {
-          text: `Vol. ${volume + 1} - Chap. ${obj.length}`, // Button label showing the volume and total chapters
-          callback_data: `volume_${volume}`, // Callback data to trigger the volume action
+          text: `Volume ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `Volume_${index}`, // Callback data to trigger the chapter action
           hide: true, // Hide after interaction
         },
       ]);
+    }
+
+    if (displayVolume[0] > 1) {
+      buttons.push([
+        {
+          text: `Prev`, // Button label showing volume and chapter
+          callback_data: `volume_prev`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+        {
+          text: `${volumeIndex + 1} / ${displayVolume[0]}`, // Button label showing volume and chapter
+          callback_data: `volume_display`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+        {
+          text: `Next`, // Button label showing volume and chapter
+          callback_data: `volume_next`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+
+    // console.log(volume.length);
+    // console.log(buttons);
+
+    // Iterate over each volume in the data
+    data.forEach((obj, volume) => {
+      //   // For each volume, create an action handler that triggers when the user selects a volume
+      //   bot.action(`volume_${volume}`, (ctx) => {
+      //     let chapterButtons = []; // Array for the chapter buttons in each volume
+      //     // Iterate over each chapter within the volume
+      obj.forEach((chapter, i) => {
+        //       // Create an action for each chapter
+        // bot.action(`chapter_${i}`, (ctx) => {
+                
+        //         msgId = ctx.reply(
+        //           `Downloading chapter ${i + 1} of volume ${volume + 1}`
+        //         );
+        //         // chatId = ctx.update.message.chat.id;
+        //       });
+        //       // Push the chapter button for the current volume
+        //       chapterButtons.push([
+        //         {
+        //           text: `Volume ${volume + 1} - Chap. ${i + 1}`, // Button label showing volume and chapter
+        //           callback_data: `chapter_${i}`, // Callback data to trigger the chapter action
+        //           hide: true, // Hide after interaction
+        //         },
+        //       ]);
+        //     });
+        //     // Send the user the list of chapters for the selected volume
+      });
     });
 
     // Send the user the list of volumes to choose from
-    ctx.reply(`Pick a Volume to begin download :)`, {
+    msgId = await ctx.reply(`Pick a Volume to begin download :)`, {
       reply_markup: {
         inline_keyboard: buttons, // Inline keyboard with volume buttons
       },
     });
+    chatId = msgId.chat.id;
+    msgId = msgId.message_id;
   });
 });
 
+// volume actions
+bot.action("Volume_0", async (ctx) => {
+  let mark = 1 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
+  let chapterButtons = [];
+  chapter = volume[mark - 1];
+  chapterIndex = 0;
+  // ordering buttons to display
+  let totalGroup = 0;
+  let groupRemain = 0;
+  if (chapter.length - 5 == 0 || chapter.length - 5 < 0) {
+    totalGroup = 1;
+    groupRemain = 0;
+    displayChapter = [totalGroup, groupRemain];
 
-// bot.action('btn_2', (ctx) => {
-//   ctx.reply('You clicked Button 2');
-// });
+    if (chapter.length - 5 < 0) {
+      let items = 5 - (5 - chapter.length);
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `Chapter ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    } else {
+      let items = 5;
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+    // buttons = new Array()
+  } else {
+    totalGroup = Math.floor(chapter.length / 5) + 1;
+    groupRemain = chapter.length % 5;
+    displayChapter = [totalGroup, groupRemain];
+    let items = 5;
+    chapterButtons = new Array(items).fill(0);
+    chapterButtons = chapterButtons.map((item, index) => [
+      {
+        text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+        callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  if (displayChapter[0] > 1) {
+    chapterButtons.push([
+      {
+        text: `Prev`, // Button label showing chapter and chapter
+        callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing chapter and chapter
+        callback_data: `chapter_display`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `Next`, // Button label showing chapter and chapter
+        callback_data: `chapter_next`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${mark} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("Volume_1", async (ctx) => {
+  let mark = 2 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
+  let chapterButtons = [];
+  chapter = volume[mark - 1];
+  chapterIndex = 0;
+  // ordering buttons to display
+  let totalGroup = 0;
+  let groupRemain = 0;
+  if (chapter.length - 5 == 0 || chapter.length - 5 < 0) {
+    totalGroup = 1;
+    groupRemain = 0;
+    displayChapter = [totalGroup, groupRemain];
+
+    if (chapter.length - 5 < 0) {
+      let items = 5 - (5 - chapter.length);
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `Chapter ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    } else {
+      let items = 5;
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+    // buttons = new Array()
+  } else {
+    totalGroup = Math.floor(chapter.length / 5) + 1;
+    groupRemain = chapter.length % 5;
+    displayChapter = [totalGroup, groupRemain];
+    let items = 5;
+    chapterButtons = new Array(items).fill(0);
+    chapterButtons = chapterButtons.map((item, index) => [
+      {
+        text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+        callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  if (displayChapter[0] > 1) {
+    chapterButtons.push([
+      {
+        text: `Prev`, // Button label showing chapter and chapter
+        callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing chapter and chapter
+        callback_data: `chapter_display`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `Next`, // Button label showing chapter and chapter
+        callback_data: `chapter_next`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${mark} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("Volume_2", async (ctx) => {
+  let mark = 3 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
+  let chapterButtons = [];
+  chapter = volume[mark - 1];
+  chapterIndex = 0;
+  // ordering buttons to display
+  let totalGroup = 0;
+  let groupRemain = 0;
+  if (chapter.length - 5 == 0 || chapter.length - 5 < 0) {
+    totalGroup = 1;
+    groupRemain = 0;
+    displayChapter = [totalGroup, groupRemain];
+
+    if (chapter.length - 5 < 0) {
+      let items = 5 - (5 - chapter.length);
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `Chapter ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    } else {
+      let items = 5;
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+    // buttons = new Array()
+  } else {
+    totalGroup = Math.floor(chapter.length / 5) + 1;
+    groupRemain = chapter.length % 5;
+    displayChapter = [totalGroup, groupRemain];
+    let items = 5;
+    chapterButtons = new Array(items).fill(0);
+    chapterButtons = chapterButtons.map((item, index) => [
+      {
+        text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+        callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  if (displayChapter[0] > 1) {
+    chapterButtons.push([
+      {
+        text: `Prev`, // Button label showing chapter and chapter
+        callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing chapter and chapter
+        callback_data: `chapter_display`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `Next`, // Button label showing chapter and chapter
+        callback_data: `chapter_next`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${mark} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("Volume_3", async (ctx) => {
+  let mark = 4 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
+  let chapterButtons = [];
+  chapter = volume[mark - 1];
+  chapterIndex = 0;
+  // ordering buttons to display
+  let totalGroup = 0;
+  let groupRemain = 0;
+  if (chapter.length - 5 == 0 || chapter.length - 5 < 0) {
+    totalGroup = 1;
+    groupRemain = 0;
+    displayChapter = [totalGroup, groupRemain];
+
+    if (chapter.length - 5 < 0) {
+      let items = 5 - (5 - chapter.length);
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `Chapter ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    } else {
+      let items = 5;
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+    // buttons = new Array()
+  } else {
+    totalGroup = Math.floor(chapter.length / 5) + 1;
+    groupRemain = chapter.length % 5;
+    displayChapter = [totalGroup, groupRemain];
+    let items = 5;
+    chapterButtons = new Array(items).fill(0);
+    chapterButtons = chapterButtons.map((item, index) => [
+      {
+        text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+        callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  if (displayChapter[0] > 1) {
+    chapterButtons.push([
+      {
+        text: `Prev`, // Button label showing chapter and chapter
+        callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing chapter and chapter
+        callback_data: `chapter_display`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `Next`, // Button label showing chapter and chapter
+        callback_data: `chapter_next`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${mark} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("Volume_4", async (ctx) => {
+  let mark = 5 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
+  let chapterButtons = [];
+  chapter = volume[mark - 1];
+  chapterIndex = 0;
+  // ordering buttons to display
+  let totalGroup = 0;
+  let groupRemain = 0;
+
+  if (chapter.length - 5 == 0 || chapter.length - 5 < 0) {
+    totalGroup = 1;
+    groupRemain = 0;
+    displayChapter = [totalGroup, groupRemain];
+
+    if (chapter.length - 5 < 0) {
+      let items = 5 - (5 - chapter.length);
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `Chapter ${index + 1}`, // Button label showing volume and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    } else {
+      let items = 5;
+      chapterButtons = new Array(items).fill(0);
+      chapterButtons = chapterButtons.map((item, index) => [
+        {
+          text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+          callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+          hide: true, // Hide after interaction
+        },
+      ]);
+    }
+    // buttons = new Array()
+  } else {
+    totalGroup = Math.floor(chapter.length / 5) + 1;
+    groupRemain = chapter.length % 5;
+    displayChapter = [totalGroup, groupRemain];
+    let items = 5;
+    chapterButtons = new Array(items).fill(0);
+    chapterButtons = chapterButtons.map((item, index) => [
+      {
+        text: `chapter ${index + 1}`, // Button label showing chapter and chapter
+        callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  if (displayChapter[0] > 1) {
+    chapterButtons.push([
+      {
+        text: `Prev`, // Button label showing chapter and chapter
+        callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing chapter and chapter
+        callback_data: `chapter_display`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+      {
+        text: `Next`, // Button label showing chapter and chapter
+        callback_data: `chapter_next`, // Callback data to trigger the chapter action
+        hide: true, // Hide after interaction
+      },
+    ]);
+  }
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${mark} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: chapterButtons, // Inline keyboard with chapter buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("volume_prev", async (ctx) => {
+  if (volumeIndex != 0) {
+    volumeIndex -= 1;
+  }
+  bot.telegram.deleteMessage(chatId, msgId);
+  let buttons = [];
+
+  // totalGroup = Math.floor(volume.length / 5) + 1;
+  // groupRemain = volume.length % 5;
+  // displayVolume = [totalGroup, groupRemain];
+  let items = volumeIndex == displayVolume[0] - 1 ? displayVolume[1] : 5;
+  buttons = new Array(items).fill(0);
+  buttons = buttons.map((item, index) => [
+    {
+      text: `Volume ${index + 1 + (volumeIndex == 0 ? 0 : volumeIndex * 5)}`, // Button label showing volume and chapter
+      callback_data: `Volume_${index}`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  buttons.push([
+    {
+      text: `Prev`, // Button label showing volume and chapter
+      callback_data: `volume_prev`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `${volumeIndex + 1} / ${displayVolume[0]}`, // Button label showing volume and chapter
+      callback_data: `volume_display`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `Next`, // Button label showing volume and chapter
+      callback_data: `volume_next`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  msgId = await ctx.reply(`Pick a Volume to begin download :)`, {
+    reply_markup: {
+      inline_keyboard: buttons, // Inline keyboard with volume buttons
+    },
+  });
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("volume_next", async (ctx) => {
+  bot.telegram.deleteMessage(chatId, msgId);
+  let buttons = [];
+  // ctx.reply("please wait")
+  if (volumeIndex != displayVolume[0] - 1) {
+    volumeIndex += 1;
+  }
+
+  // totalGroup = Math.floor(volume.length / 5) + 1;
+  // groupRemain = volume.length % 5;
+  // displayVolume = [totalGroup, groupRemain];
+  let items = volumeIndex == displayVolume[0] - 1 ? displayVolume[1] : 5;
+  buttons = new Array(items).fill(0);
+  buttons = buttons.map((item, index) => [
+    {
+      text: `Volume ${index + 1 + (volumeIndex == 0 ? 0 : volumeIndex * 5)}`, // Button label showing volume and chapter
+      callback_data: `Volume_${index}`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  buttons.push([
+    {
+      text: `Prev`, // Button label showing volume and chapter
+      callback_data: `volume_prev`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `${volumeIndex + 1} / ${displayVolume[0]}`, // Button label showing volume and chapter
+      callback_data: `volume_display`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `Next`, // Button label showing volume and chapter
+      callback_data: `volume_next`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  msgId = await ctx.reply(`Pick a Volume to begin download :)`, {
+    reply_markup: {
+      inline_keyboard: buttons, // Inline keyboard with volume buttons
+    },
+  });
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+
+// chapter actions
+bot.action("chapter_0", (ctx)=>{
+  let mark = 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
+  // Call the download function (assumed to be defined elsewhere)
+  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+    ctx.replyWithDocument({ source: "./test.pdf" });
+  });
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+})
+bot.action("chapter_1", (ctx)=>{
+  let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
+  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+    ctx.replyWithDocument({ source: "./test.pdf" });
+  });
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+})
+bot.action("chapter_2", (ctx)=>{
+  let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
+  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+    ctx.replyWithDocument({ source: "./test.pdf" });
+  });
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+})
+bot.action("chapter_3", (ctx)=>{
+  let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
+  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+    ctx.replyWithDocument({ source: "./test.pdf" });
+  });
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+})
+bot.action("chapter_4", (ctx)=>{
+  let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
+  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+    ctx.replyWithDocument({ source: "./test.pdf" });
+  });
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+})
+bot.action("chapter_prev", async (ctx) => {
+  if (chapterIndex != 0) {
+    chapterIndex -= 1;
+  }
+  bot.telegram.deleteMessage(chatId, msgId);
+  let buttons = [];
+
+  // totalGroup = Math.floor(volume.length / 5) + 1;
+  // groupRemain = volume.length % 5;
+  // displayVolume = [totalGroup, groupRemain];
+  let items = chapterIndex == displayChapter[0] - 1 ? displayChapter[1] : 5;
+  buttons = new Array(items).fill(0);
+  buttons = buttons.map((item, index) => [
+    {
+      text: `chapter ${index + 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5)}`, // Button label showing volume and chapter
+      callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  buttons.push([
+    {
+      text: `Prev`, // Button label showing volume and chapter
+      callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing volume and chapter
+      callback_data: `chapter_display`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `Next`, // Button label showing volume and chapter
+      callback_data: `chapter_next`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${volumeIndex + 1} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: buttons, // Inline keyboard with volume buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+bot.action("chapter_next", async (ctx) => {
+  bot.telegram.deleteMessage(chatId, msgId);
+  let buttons = [];
+  // ctx.reply("please wait")
+  if (chapterIndex != displayChapter[0] - 1) {
+    chapterIndex += 1;
+  }
+
+  // totalGroup = Math.floor(volume.length / 5) + 1;
+  // groupRemain = volume.length % 5;
+  // displayVolume = [totalGroup, groupRemain];
+  let items = chapterIndex == displayChapter[0] - 1 ? displayChapter[1] : 5;
+  buttons = new Array(items).fill(0);
+  buttons = buttons.map((item, index) => [
+    {
+      text: `chapter ${index + 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5)}`, // Button label showing volume and chapter
+      callback_data: `chapter_${index}`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  buttons.push([
+    {
+      text: `Prev`, // Button label showing volume and chapter
+      callback_data: `chapter_prev`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `${chapterIndex + 1} / ${displayChapter[0]}`, // Button label showing volume and chapter
+      callback_data: `chapter_display`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+    {
+      text: `Next`, // Button label showing volume and chapter
+      callback_data: `chapter_next`, // Callback data to trigger the chapter action
+      hide: true, // Hide after interaction
+    },
+  ]);
+
+  msgId = await ctx.reply(
+    `Pick a chapter from Volume ${volumeIndex + 1} to begin download :)`,
+    {
+      reply_markup: {
+        inline_keyboard: buttons, // Inline keyboard with volume buttons
+      },
+    }
+  );
+  chatId = msgId.chat.id;
+  msgId = msgId.message_id;
+});
+
 
 bot.on("inline_query", async (ctx) => {
   try {
