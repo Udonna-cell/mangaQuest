@@ -47,6 +47,7 @@ let displayVolume = 0;
 let displayChapter = 0;
 let volumeIndex = 0;
 let chapterIndex = 0;
+let volumeMark = 0
 
 // Example: Respond to /start command
 // bot.start((ctx) => {
@@ -376,6 +377,7 @@ bot.action("Volume_0", async (ctx) => {
   let mark = 1 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
   let chapterButtons = [];
   chapter = volume[mark - 1];
+  volumeMark = mark
   chapterIndex = 0;
   // ordering buttons to display
   let totalGroup = 0;
@@ -452,11 +454,13 @@ bot.action("Volume_0", async (ctx) => {
   );
   chatId = msgId.chat.id;
   msgId = msgId.message_id;
+  
 });
 bot.action("Volume_1", async (ctx) => {
   let mark = 2 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
   let chapterButtons = [];
   chapter = volume[mark - 1];
+  volumeMark = mark
   chapterIndex = 0;
   // ordering buttons to display
   let totalGroup = 0;
@@ -538,6 +542,7 @@ bot.action("Volume_2", async (ctx) => {
   let mark = 3 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
   let chapterButtons = [];
   chapter = volume[mark - 1];
+  volumeMark = mark
   chapterIndex = 0;
   // ordering buttons to display
   let totalGroup = 0;
@@ -619,6 +624,7 @@ bot.action("Volume_3", async (ctx) => {
   let mark = 4 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
   let chapterButtons = [];
   chapter = volume[mark - 1];
+  volumeMark = mark
   chapterIndex = 0;
   // ordering buttons to display
   let totalGroup = 0;
@@ -700,6 +706,7 @@ bot.action("Volume_4", async (ctx) => {
   let mark = 5 + (volumeIndex == 0 ? 0 : volumeIndex * 5);
   let chapterButtons = [];
   chapter = volume[mark - 1];
+  volumeMark = mark
   chapterIndex = 0;
   // ordering buttons to display
   let totalGroup = 0;
@@ -879,35 +886,40 @@ bot.action("chapter_0", (ctx)=>{
   download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`)
+  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`)
 })
 bot.action("chapter_1", (ctx)=>{
   let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`)
+  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`)
 })
 bot.action("chapter_2", (ctx)=>{
   let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`)
+  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`)
 })
 bot.action("chapter_3", (ctx)=>{
   let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`)
+  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`)
 })
 bot.action("chapter_4", (ctx)=>{
   let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeIndex + 1}`)
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`)
+  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`)
 })
 bot.action("chapter_prev", async (ctx) => {
   if (chapterIndex != 0) {
