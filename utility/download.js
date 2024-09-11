@@ -3,8 +3,6 @@ const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
-// const { update, editUpdate } = require("../app");
-const { message } = require("telegraf/filters");
 
 async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   // console.log(chap);
@@ -20,7 +18,7 @@ async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   const doc = new PDFDocument({ autoFirstPage: false });
 
   // Piping the document to a file
-  doc.pipe(fs.createWriteStream(path.resolve(__dirname, "../test.pdf")));
+  doc.pipe(fs.createWriteStream(path.resolve(__dirname, `../${title.en} vol. ${vol} - chap. ${chapMark}.pdf`)));
 
   // console.log(data);
 
