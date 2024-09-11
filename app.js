@@ -156,21 +156,20 @@ bot.command("inline", (ctx) => {
     },
   });
 });
-async function search(text, id, limit, offset) {
+async function search(text, Mid, limit, offset) {
   // body...
-  let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
+  let { results, id, title, description, year, rate, cover } = await Search(
     text,
     limit,
     offset
   );
   // saving manga id
-  bookID = MangaID;
-  // console.log(offset);
+  bookID = id;
   totalManga = results;
-  let rate = await getRating(id);
-  rate = rate.toFixed(2);
+
+  
   bot.telegram
-    .sendPhoto(id, MangaCover, {
+    .sendPhoto(Mid, cover, {
       reply_markup: {
         inline_keyboard: [
           [
@@ -185,8 +184,8 @@ async function search(text, id, limit, offset) {
           [{ text: "Download 🚀", callback_data: "download", hide: true }],
         ],
       },
-      caption: `📖<code>${MangaTitle}</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
-        MangaPlot,
+      caption: `📖<code>${title.en}</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+        description.en,
         50
       )}`,
       parse_mode: "HTML",
@@ -204,25 +203,11 @@ bot.command("search", (ctx) => {
       // console.log(ctx.update.message, ">>>>>\n\n>>>");
       userMessage = ctx.message.text;
       chatId = ctx.update.message.chat.id;
-      // async function display(params, id) {
-      //   let { results, MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(params);
-      //   // console.log(respond, "gdh");
-      //   bot.telegram.sendPhoto(id, MangaCover, {
-      //     reply_markup: {
-      //       inline_keyboard: [
-      //         [{ text: 'PREV', callback_data: 'test', hide: true }, { text: '4 / 56', callback_data: 'test', hide: true }, { text: 'NEXT', callback_data: 'test', hide: true }],
-      //         [{ text: 'Download 🚀', callback_data: 'btn_1', hide: true }],
-      //       ],
-      //     },
-      //     caption: `📖${MangaTitle}\nRate: 67⭐️⭐️\n💎Type: ${"Manga.type"}\n\nPLOT\n${MangaPlot}`,
-      //   });
-      //   // ctx.reply(`${MangaTitle}\nType: ${"Manga.type"}\n${MangaPlot}`);
-      //   // ctx.telegram.sendPhoto()
-      // }
+      
       search(userMessage, chatId, 1, mangaIndex);
+
       isWaitingReply = false;
-      // msgId = ctx.update.message.message_id
-      // console.log(ctx.update.message.message_id);
+      
     } else {
       ctx.reply("Use the /help to explor more");
     }
@@ -864,7 +849,7 @@ bot.action("chapter_0", (ctx) => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
-  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
+  // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_1", (ctx) => {
   let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
@@ -872,7 +857,7 @@ bot.action("chapter_1", (ctx) => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
-  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
+  // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_2", (ctx) => {
   let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
@@ -880,7 +865,7 @@ bot.action("chapter_2", (ctx) => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
-  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
+  // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_3", (ctx) => {
   let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
@@ -888,7 +873,7 @@ bot.action("chapter_3", (ctx) => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
-  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
+  // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_4", (ctx) => {
   let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
@@ -896,7 +881,7 @@ bot.action("chapter_4", (ctx) => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
-  ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
+  // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_prev", async (ctx) => {
   if (chapterIndex != 0) {
@@ -1038,81 +1023,14 @@ bot.on("inline_query", async (ctx) => {
     });
   }
 });
-// bot.on("inline_query", async (ctx) => {
-//   try {
-//     const query = ctx.inlineQuery.query;
 
-//     if (!query) {
-//       // Handle empty queries gracefully
-//       return ctx.answerInlineQuery([], {
-//         switch_pm_text: "Please enter a search term.",
-//         switch_pm_parameter: "no_query",
-//       });
-//     }
+function update() {
+  console.log("updating");
+}
+function editUpdate() {
+  console.log("editUpdate");
+}
 
-//     // Respond quickly with a temporary message to avoid timeout
-//     await ctx.answerInlineQuery([
-//       {
-//         type: "article",
-//         id: generateUniqueId(16),
-//         title: "Searching...",
-//         input_message_content: {
-//           message_text: "Please wait while we search for your query...",
-//         },
-//       },
-//     ]);
-
-//     // Delay the processing to avoid blocking the initial response
-//     setImmediate(async () => {
-//       try {
-//         // Process the query and generate results
-//         const results = [];
-//         const mangaSearchIndexes = [0, 1, 2, 3, 4, 5];
-
-//         for (const index of mangaSearchIndexes) {
-//           const { MangaID, MangaCover, MangaPlot, MangaTitle } = await Search(
-//             query,
-//             1,
-//             index
-//           );
-
-//           results.push({
-//             type: "photo",
-//             id: generateUniqueId(16),
-//             title: `${MangaTitle}`,
-//             photo_url: `${MangaCover}`,
-//             thumb_url: `${MangaCover}`,
-//             caption: `${MangaTitle}\n\n${trim(MangaPlot, 50)}\n\n\nhttps://t.me/MangaQuest_bot?start=search_${MangaTitle}`,
-//             description: `${trim(MangaPlot, 10)}`,
-//           });
-//         }
-
-//         // Ensure the query is still valid before responding
-//         if (ctx.inlineQuery.id === ctx.inlineQuery.id) {
-//           await ctx.answerInlineQuery(results);
-//         }
-//       } catch (err) {
-//         console.error("Error during inline query processing:", err);
-
-//         // Handle error gracefully
-//         ctx.answerInlineQuery([], {
-//           switch_pm_text: "An error occurred, please try again.",
-//           switch_pm_parameter: "error",
-//         });
-//       }
-//     });
-//   } catch (error) {
-//     console.error("Error while processing inline query:", error);
-
-//     // Handle generic errors and notify the user
-//     ctx.answerInlineQuery([], {
-//       switch_pm_text: "An error occurred, please try again.",
-//       switch_pm_parameter: "error",
-//     });
-//   }
-// });
-
-// view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
@@ -1142,4 +1060,4 @@ app.use(function (err, req, res, next) {
 });
 
 bot.launch();
-module.exports = app;
+module.exports = {app, update, editUpdate};

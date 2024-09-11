@@ -3,11 +3,16 @@ const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
-const { Telegraf, Markup } = require("telegraf");
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const { update, editUpdate } = require("../app");
+const { message } = require("telegraf/filters");
 
 async function download(chap, msgID, chatID, ctx) {
-  console.log(chap);
+  // console.log(chap);
+  let messageID = 0
+  update()
+  // bot.telegram.sendMessage(chatID, "Download progress here.....").then((message)=>{
+  //   messageID = message.message_id
+  // })
   let { data } = await axios(
     `https://api.mangadex.org/at-home/server/${chap.id}`
   );
@@ -34,6 +39,8 @@ async function download(chap, msgID, chatID, ctx) {
     // Wait for the image to be downloaded
     await downloadImage(url, imgPath).then((data) => {
       console.log(data);
+      editUpdate()
+      // bot.telegram.editMessageText(chatID, messageID, null, `Downloaded page ${i + 1}`)
     });
 
     console.log(`Successfully Downloaded page (${i} / ${pages.length})`);
@@ -63,6 +70,8 @@ async function download(chap, msgID, chatID, ctx) {
   // Finalize the PDF
   doc.end();
   console.log("PDF created successfully");
+  editUpdate()
+  // bot.telegram.editMessageText(chatID, messageID, null, `Downloaded page ${i + 1}`)
 }
 
 async function downloadImage(url, filePath) {
