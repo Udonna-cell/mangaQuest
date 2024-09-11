@@ -3,16 +3,15 @@ const axios = require("axios");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
-const { update, editUpdate } = require("../app");
+// const { update, editUpdate } = require("../app");
 const { message } = require("telegraf/filters");
 
-async function download(chap, msgID, chatID, ctx) {
+async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   // console.log(chap);
   let messageID = 0
-  update()
-  // bot.telegram.sendMessage(chatID, "Download progress here.....").then((message)=>{
-  //   messageID = message.message_id
-  // })
+  let total, count;
+  // update()
+  bot.telegram.sendMessage(chatID, "Please wait while download is processing").then((message)=>{ messageID = message.message_id })
   let { data } = await axios(
     `https://api.mangadex.org/at-home/server/${chap.id}`
   );
@@ -29,7 +28,10 @@ async function download(chap, msgID, chatID, ctx) {
   let hash = data.chapter.hash;
   let pickpage = data.chapter.data[0].split(".")[1] != "png";
   let pages = pickpage ? data.chapter.data : data.chapter.dataSaver;
+  total = pages.length
+  count = 0
   // console.log(pages);
+  bot.telegram.editMessageText(chatID, messageID, null, `📚${title.en}\nVolume ${vol} chapter ${chapMark}\n🔘Downloading page ( ${count} / ${total} )\n🔘PDF created successfully\nSending please wait...`)
 
   for (const [i, page] of pages.entries()) {
     let url = (pickpage)?(`${baseUrl}/data/${hash}/${page}`) : (`${baseUrl}/data-saver/${hash}/${page}`);
@@ -37,10 +39,11 @@ async function download(chap, msgID, chatID, ctx) {
     // ext = ext[ext.length - 1];
     let imgPath = path.resolve(__dirname, `../img-${i}.jpg`);
     // Wait for the image to be downloaded
-    await downloadImage(url, imgPath).then((data) => {
+    count = i + 1
+    await downloadImage(url, imgPath).then(async (data) => {
       console.log(data);
-      editUpdate()
-      // bot.telegram.editMessageText(chatID, messageID, null, `Downloaded page ${i + 1}`)
+      // editUpdate()
+      await bot.telegram.editMessageText(chatID, messageID, null, `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n🔄 Downloading page ( ${count} / ${total} )\n🔘 PDF created successfully\nSending please wait...`)
     });
 
     console.log(`Successfully Downloaded page (${i} / ${pages.length})`);
@@ -70,8 +73,9 @@ async function download(chap, msgID, chatID, ctx) {
   // Finalize the PDF
   doc.end();
   console.log("PDF created successfully");
-  editUpdate()
-  // bot.telegram.editMessageText(chatID, messageID, null, `Downloaded page ${i + 1}`)
+  // editUpdate()
+  await bot.telegram.deleteMessage(chatID, messageID);
+  bot.telegram.sendMessage(chatID, `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n.........\n✅ Downloading page ( ${count} / ${total} )\n✅ PDF created successfully\nSending please wait...`)
 }
 
 async function downloadImage(url, filePath) {

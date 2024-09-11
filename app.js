@@ -36,6 +36,7 @@ var app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 let isWaitingReply = false;
 let userMessage = "mangaQuest";
+let mangaTitle = ""
 let chatId = 0;
 let totalManga = 0;
 let mangaIndex = 0;
@@ -167,7 +168,7 @@ async function search(text, Mid, limit, offset) {
   bookID = id;
   totalManga = results;
 
-  
+  mangaTitle = title
   bot.telegram
     .sendPhoto(Mid, cover, {
       reply_markup: {
@@ -845,7 +846,7 @@ bot.action("volume_next", async (ctx) => {
 bot.action("chapter_0", (ctx) => {
   let mark = 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   // Call the download function (assumed to be defined elsewhere)
-  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
@@ -853,7 +854,7 @@ bot.action("chapter_0", (ctx) => {
 });
 bot.action("chapter_1", (ctx) => {
   let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
@@ -861,7 +862,7 @@ bot.action("chapter_1", (ctx) => {
 });
 bot.action("chapter_2", (ctx) => {
   let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
@@ -869,7 +870,7 @@ bot.action("chapter_2", (ctx) => {
 });
 bot.action("chapter_3", (ctx) => {
   let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
@@ -877,7 +878,7 @@ bot.action("chapter_3", (ctx) => {
 });
 bot.action("chapter_4", (ctx) => {
   let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx).then(() => {
+  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
     ctx.replyWithDocument({ source: "./test.pdf" });
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
