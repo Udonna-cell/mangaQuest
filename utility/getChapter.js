@@ -32,8 +32,8 @@ function group(data) {
       return obj
     }
   });
-
-  let preVolume = matchLang[0].attributes.volume
+  
+  let preVolume = matchLang.length > 0? matchLang[0].attributes.volume : 0
   let VolumeGroup = []
   matchLang.forEach(obj => {
     if (obj.attributes.volume == preVolume) {

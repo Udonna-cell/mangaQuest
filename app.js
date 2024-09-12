@@ -51,12 +51,22 @@ let volumeIndex = 0;
 let chapterIndex = 0;
 let volumeMark = 0;
 
+// let x = 1948498964
+// let messageID = 0
+// let t = new Date()
 // Example: Respond to /start command
-// bot.start((ctx) => {
-//   const chatId = ctx.update.message.chat.id; // Replace with your actual chat ID (without quotes)
-
-//   // ctx.reply(`Welcome <b>${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}</b> to MangaQuest`, {parse_mode: "HTML"});
-// });
+// bot.telegram.sendMessage(1948498964,"server running").then((message)=>{ 
+//   messageID = message.message_id
+//   setInterval(function() {
+//   bot.telegram.editMessageText(x, messageID, null, `server is still running... ${t}`)
+// }, 5000);
+// })
+for (let i = 0; i < 100; i++) {
+  // console.log(i);
+  if(i == 99){
+    i = 0
+  }
+}
 bot.start((ctx) => {
   chatId = ctx.update.message.chat.id;
   // const chatId = ctx.update.message.chat.id;
