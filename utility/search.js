@@ -13,7 +13,10 @@ async function Search(txt, limit, offset) {
     );
     let { relationships, attributes, id } = data.data[0];
     let { title, description, year } = attributes;
+    
     let cover = relationships.filter((obj) => obj.type == "cover_art");
+    console.log(cover);
+    console.log(id);
     cover = `https://uploads.mangadex.org/covers/${id}/${cover[0].attributes.fileName}`;
     // console.log(cover);
     let rate = await getRating(id);

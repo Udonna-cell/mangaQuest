@@ -11,7 +11,7 @@ var logger = require("morgan");
 const { Telegraf, Markup } = require("telegraf");
 
 const Search = require("./utility/search");
-const clean = require("./utility/clean")
+const deleteFiles = require("./utility/deleteFiles")
 const trim = require("./utility/trim");
 const getChapter = require("./utility/getChapter");
 const generateUniqueId = require("./utility/generateUniqueId");
@@ -205,7 +205,7 @@ bot.command("search", (ctx) => {
       // console.log(ctx.update.message, ">>>>>\n\n>>>");
       userMessage = ctx.message.text;
       chatId = ctx.update.message.chat.id;
-      
+      console.log(chatId);
       search(userMessage, chatId, 1, mangaIndex);
 
       isWaitingReply = false;
@@ -848,8 +848,8 @@ bot.action("chapter_0", (ctx) => {
   let mark = 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   // Call the download function (assumed to be defined elsewhere)
   download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `../${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    clean()
+    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
+    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
@@ -857,8 +857,8 @@ bot.action("chapter_0", (ctx) => {
 bot.action("chapter_1", (ctx) => {
   let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `../${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    clean()
+    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
+    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
@@ -866,8 +866,8 @@ bot.action("chapter_1", (ctx) => {
 bot.action("chapter_2", (ctx) => {
   let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `../${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    clean()
+    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
+    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
@@ -875,8 +875,8 @@ bot.action("chapter_2", (ctx) => {
 bot.action("chapter_3", (ctx) => {
   let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `../${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    clean()
+    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
+    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
@@ -884,8 +884,8 @@ bot.action("chapter_3", (ctx) => {
 bot.action("chapter_4", (ctx) => {
   let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `../${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    clean()
+    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
+    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
