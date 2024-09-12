@@ -61,12 +61,13 @@ let volumeMark = 0;
 //   bot.telegram.editMessageText(x, messageID, null, `server is still running... ${t}`)
 // }, 5000);
 // })
-for (let i = 0; i < 100; i++) {
-  // console.log(i);
-  if(i == 99){
-    i = 0
-  }
-}
+// for (let i = 0; i < 100; i++) {
+//   // console.log(i);
+//   if(i == 99){
+//     i = 0
+//   }
+// }
+
 bot.start((ctx) => {
   chatId = ctx.update.message.chat.id;
   // const chatId = ctx.update.message.chat.id;
