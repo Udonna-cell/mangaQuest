@@ -96,6 +96,7 @@ bot.start((ctx) => {
 
         // saving manga id
         bookID = id;
+        mangaTitle = title
 
         // search(data.data.attributes.title.en, chatId, 1, mangaIndex);
         bot.telegram.sendPhoto(chatId, cover, {

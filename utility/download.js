@@ -6,10 +6,14 @@ const path = require("path");
 
 async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   // console.log(chap);
-  let messageID = 0
+  let messageID = 0;
   let total, count;
   // update()
-  bot.telegram.sendMessage(chatID, "Please wait while download is processing").then((message)=>{ messageID = message.message_id })
+  bot.telegram
+    .sendMessage(chatID, "Please wait while download is processing")
+    .then((message) => {
+      messageID = message.message_id;
+    });
   let { data } = await axios(
     `https://api.mangadex.org/at-home/server/${chap.id}`
   );
@@ -18,7 +22,14 @@ async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   const doc = new PDFDocument({ autoFirstPage: false });
 
   // Piping the document to a file
-  doc.pipe(fs.createWriteStream(path.resolve(__dirname, `../${title.en} vol. ${vol} - chap. ${chapMark}.pdf`)));
+  doc.pipe(
+    fs.createWriteStream(
+      path.resolve(
+        __dirname,
+        `../${title.en} vol. ${vol} - chap. ${chapMark}.pdf`
+      )
+    )
+  );
 
   // console.log(data);
 
@@ -26,46 +37,50 @@ async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   let hash = data.chapter.hash;
   let pickpage = data.chapter.data[0].split(".")[1] != "png";
   let pages = pickpage ? data.chapter.data : data.chapter.dataSaver;
-  total = pages.length
-  count = 0
-  // console.log(pages);
-  bot.telegram.editMessageText(chatID, messageID, null, `📚${title.en}\nVolume ${vol} chapter ${chapMark}\n🔘Downloading page ( ${count} / ${total} )\n🔘PDF created successfully\nSending please wait...`)
+  total = pages.length;
+  count = 0;
+  console.log(pages);
+  bot.telegram.editMessageText(
+    chatID,
+    messageID,
+    null,
+    `📚${title.en}\nVolume ${vol} chapter ${chapMark}\n🔘Downloading page ( ${count} / ${total} )\n🔘PDF created successfully\nSending please wait...`
+  );
 
   for (const [i, page] of pages.entries()) {
-    let url = (pickpage)?(`${baseUrl}/data/${hash}/${page}`) : (`${baseUrl}/data-saver/${hash}/${page}`);
-    // let ext = url.split(".");
-    // ext = ext[ext.length - 1];
-    let imgPath = path.resolve(__dirname, `../img-${i}.jpg`);
-    // Wait for the image to be downloaded
-    count = i + 1
-    await downloadImage(url, imgPath).then(async (data) => {
-      console.log(data);
-      // editUpdate()
-      await bot.telegram.editMessageText(chatID, messageID, null, `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n🔄 Downloading page ( ${count} / ${total} )\n🔘 PDF created successfully\nSending please wait...`)
-    });
+    let url = pickpage
+      ? `${baseUrl}/data/${hash}/${page}`
+      : `${baseUrl}/data-saver/${hash}/${page}`;
 
-    console.log(`Successfully Downloaded page (${i} / ${pages.length})`);
-    // ctx.telegram.editMessageText(chatID, msgID, null, `downloaded page ${i}`)
-    // Open the image and get its dimensions
-    const img = doc.openImage(`${imgPath}`);
+    let ext = url.split(".");
+    ext = ext[ext.length - 1];
 
-    // Add a new page with the size of the image
-    doc.addPage({ size: [img.width, img.height] });
+    if (ext != "jpg") {
+    } else {
+      let imgPath = path.resolve(__dirname, `../img-${i}.jpg`);
+      // Wait for the image to be downloaded
+      count = i + 1;
+      await downloadImage(url, imgPath).then(async (data) => {
+        console.log(data);
+        // editUpdate()
+        await bot.telegram.editMessageText(
+          chatID,
+          messageID,
+          null,
+          `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n🔄 Downloading page ( ${count} / ${total} )\n🔘 PDF created successfully\nSending please wait...`
+        );
+      });
 
-    // Add the image to the page
-    doc.image(img, 0, 0);
+      console.log(`Successfully Downloaded page (${i} / ${pages.length})`);
+      // Open the image and get its dimensions
+      const img = doc.openImage(`${imgPath}`);
 
-    // Add image to the PDF document
-    // doc.image(imgPath, 0, 15,{
-    //   width: 610, // Adjust fit size as necessary
-    //   align: 'center',
-    //   valign: 'center'
-    // });
+      // Add a new page with the size of the image
+      doc.addPage({ size: [img.width, img.height] });
 
-    // Add a new page if not the last page
-    // if (i + 1 !== pages.length) {
-    //   doc.addPage();
-    // }
+      // Add the image to the page
+      doc.image(img, 0, 0);
+    }
   }
 
   // Finalize the PDF
@@ -73,7 +88,10 @@ async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   console.log("PDF created successfully");
   // editUpdate()
   await bot.telegram.deleteMessage(chatID, messageID);
-  bot.telegram.sendMessage(chatID, `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n.........\n✅ Downloading page ( ${count} / ${total} )\n✅ PDF created successfully\nSending please wait...`)
+  bot.telegram.sendMessage(
+    chatID,
+    `📚 ${title.en}\nVolume ${vol} chapter ${chapMark}\n.........\n✅ Downloading page ( ${count} / ${total} )\n✅ PDF created successfully\nSending please wait...`
+  );
 }
 
 async function downloadImage(url, filePath) {
@@ -87,8 +105,8 @@ async function downloadImage(url, filePath) {
     const writer = fs.createWriteStream(filePath);
     data.pipe(writer);
 
-    writer.on("finish", ()=>{
-      resolve("okay")
+    writer.on("finish", () => {
+      resolve("okay");
     });
     writer.on("error", reject);
   });
