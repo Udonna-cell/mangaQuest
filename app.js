@@ -131,7 +131,7 @@ bot.start((ctx) => {
   } else {
     bot.telegram.sendPhoto(
       chatId,
-      "https://raw.githubusercontent.com/Udonna-cell/mangaQuest/master/public/images/wallpaperflare.com_wallpaper%20(1).jpg",
+      "https://raw.githubusercontent.com/Udonna-cell/mangaQuest/master/public/images/IMG_20240916_225203_665.jpg",
       {
         reply_markup: {
           // inline_keyboard: [
