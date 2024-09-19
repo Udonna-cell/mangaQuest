@@ -23,7 +23,7 @@ var usersRouter = require("./routes/users");
 
 var app = express();
 
-con = mysql.createConnection({
+const con = mysql.createConnection({
   host: process.env.HOST || "db4free.net",
   user: process.env.USER || "stabug",
   password: process.env.PASSWORD || "456ma$SO",
