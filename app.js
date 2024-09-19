@@ -22,10 +22,10 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
 var app = express();
-let host = process.env.HOST
-let user = process.env.USERs
-let password = process.env.PASSWORD
-let database = process.env.DATABASE
+let host = "db4free.net"
+let user = "stabug"
+let password = "456ma$SO"
+let database = "greydb"
 
 const con = mysql.createConnection({
   host,
