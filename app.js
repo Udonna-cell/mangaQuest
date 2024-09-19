@@ -11,7 +11,7 @@ var logger = require("morgan");
 const { Telegraf, Markup } = require("telegraf");
 
 const Search = require("./utility/search");
-const deleteFiles = require("./utility/deleteFiles")
+const deleteFiles = require("./utility/deleteFiles");
 const trim = require("./utility/trim");
 const getChapter = require("./utility/getChapter");
 const generateUniqueId = require("./utility/generateUniqueId");
@@ -24,10 +24,10 @@ var usersRouter = require("./routes/users");
 var app = express();
 
 con = mysql.createConnection({
-  host: process.env.HOST || "localhost",
-  user: process.env.USER || "admin",
-  password: process.env.PASSWORD || "",
-  database: process.env.DB || "users"
+  host: process.env.HOST || "db4free.net",
+  user: process.env.USER || "stabug",
+  password: process.env.PASSWORD || "456ma$SO",
+  database: process.env.DB || "graydb",
 });
 
 // con.connect(function(err) {
@@ -38,7 +38,7 @@ con = mysql.createConnection({
 const bot = new Telegraf(process.env.BOT_TOKEN);
 let isWaitingReply = false;
 let userMessage = "mangaQuest";
-let mangaTitle = ""
+let mangaTitle = "";
 let chatId = 0;
 let totalManga = 0;
 let mangaIndex = 0;
@@ -52,11 +52,11 @@ let volumeIndex = 0;
 let chapterIndex = 0;
 let volumeMark = 0;
 
-let x = 1948498964
+let x = 1948498964;
 // let messageID = 0
 // let t = new Date()
 // Example: Respond to /start command
-// bot.telegram.sendMessage(1948498964,"server running").then((message)=>{ 
+// bot.telegram.sendMessage(1948498964,"server running").then((message)=>{
 //   messageID = message.message_id
 //   setInterval(function() {
 //   bot.telegram.editMessageText(x, messageID, null, `server is still running... ${t}`)
@@ -72,19 +72,26 @@ let x = 1948498964
 bot.start((ctx) => {
   chatId = ctx.update.message.chat.id;
   // const chatId = ctx.update.message.chat.id;
-  con.connect((err)=>{
+  con.connect((err) => {
     if (err) {
-      bot.telegram.sendMessage(x, `Database not connected\n To add user ${chatId}`)
+      bot.telegram.sendMessage(
+        x,
+        `Database not connected\n To add user ${chatId}`
+      );
+    } else {
+      let query = `INSERT INTO users (ID) values (${ch})`;
+      con.query(query, (err, data) => {
+        if (err) {
+          bot.telegram.sendMessage(
+            x,
+            `Database not connected\n To add user ${chatId}`
+          );
+        } else {
+          bot.telegram.sendMessage(x, `Welcome new user ${chatId}`);
+        }
+      });
     }
-    let query = `INSERT INTO users (ID) values (${chatId})`
-    con.query(query, (err, data)=>{
-      if (err) {
-        bot.telegram.sendMessage(x, `Database not connected\n To add user ${chatId}`)
-      }else{
-        bot.telegram.sendMessage(x, `Welcome new user ${chatId}`)
-      }
-    })
-  })
+  });
   const args = ctx.message.text.split(" ");
   if (args.length > 1) {
     const param = args[1]; // Extract the parameter after /start
@@ -110,7 +117,7 @@ bot.start((ctx) => {
 
         // saving manga id
         bookID = id;
-        mangaTitle = title
+        mangaTitle = title;
 
         // search(data.data.attributes.title.en, chatId, 1, mangaIndex);
         bot.telegram.sendPhoto(chatId, cover, {
@@ -195,7 +202,7 @@ async function search(text, Mid, limit, offset) {
   bookID = id;
   totalManga = results;
 
-  mangaTitle = title
+  mangaTitle = title;
   bot.telegram
     .sendPhoto(Mid, cover, {
       reply_markup: {
@@ -212,7 +219,9 @@ async function search(text, Mid, limit, offset) {
           [{ text: "Download 🚀", callback_data: "download", hide: true }],
         ],
       },
-      caption: `📖<code>${title.en}</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+      caption: `📖<code>${
+        title.en
+      }</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
         description.en,
         50
       )}`,
@@ -235,7 +244,6 @@ bot.command("search", (ctx) => {
       search(userMessage, chatId, 1, mangaIndex);
 
       isWaitingReply = false;
-      
     } else {
       ctx.reply("Use the /help to explor more");
     }
@@ -873,45 +881,100 @@ bot.action("volume_next", async (ctx) => {
 bot.action("chapter_0", (ctx) => {
   let mark = 1 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
   // Call the download function (assumed to be defined elsewhere)
-  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
+  download(
+    chapter[mark - 1],
+    msgId,
+    chatId,
+    ctx,
+    bot,
+    mangaTitle,
+    volumeMark,
+    mark
+  ).then(() => {
+    ctx.replyWithDocument({
+      source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf`,
+    });
+    deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_1", (ctx) => {
   let mark = 2 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
+  download(
+    chapter[mark - 1],
+    msgId,
+    chatId,
+    ctx,
+    bot,
+    mangaTitle,
+    volumeMark,
+    mark
+  ).then(() => {
+    ctx.replyWithDocument({
+      source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf`,
+    });
+    deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_2", (ctx) => {
   let mark = 3 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
+  download(
+    chapter[mark - 1],
+    msgId,
+    chatId,
+    ctx,
+    bot,
+    mangaTitle,
+    volumeMark,
+    mark
+  ).then(() => {
+    ctx.replyWithDocument({
+      source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf`,
+    });
+    deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_3", (ctx) => {
   let mark = 4 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
+  download(
+    chapter[mark - 1],
+    msgId,
+    chatId,
+    ctx,
+    bot,
+    mangaTitle,
+    volumeMark,
+    mark
+  ).then(() => {
+    ctx.replyWithDocument({
+      source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf`,
+    });
+    deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_4", (ctx) => {
   let mark = 5 + (chapterIndex == 0 ? 0 : chapterIndex * 5);
-  download(chapter[mark - 1], msgId, chatId, ctx, bot, mangaTitle, volumeMark, mark).then(() => {
-    ctx.replyWithDocument({ source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf` });
-    deleteFiles(path.resolve(__dirname), ['.jpg', '.pdf']);
+  download(
+    chapter[mark - 1],
+    msgId,
+    chatId,
+    ctx,
+    bot,
+    mangaTitle,
+    volumeMark,
+    mark
+  ).then(() => {
+    ctx.replyWithDocument({
+      source: `./${mangaTitle.en} vol. ${volumeMark} - chap. ${mark}.pdf`,
+    });
+    deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
@@ -1093,4 +1156,4 @@ app.use(function (err, req, res, next) {
 });
 
 bot.launch();
-module.exports = {app, update, editUpdate};
+module.exports = { app, update, editUpdate };
