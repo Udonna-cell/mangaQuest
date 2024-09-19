@@ -23,11 +23,12 @@ var usersRouter = require("./routes/users");
 
 var app = express();
 
-// con = mysql.createConnection({
-//   host: "localhost",
-//   user: "admin",
-//   password: ""
-// });
+con = mysql.createConnection({
+  host: process.env.HOST || "localhost",
+  user: process.env.USER || "admin",
+  password: process.env.PASSWORD || "",
+  database: process.env.DB || "users"
+});
 
 // con.connect(function(err) {
 //   if (err) throw err;
@@ -51,7 +52,7 @@ let volumeIndex = 0;
 let chapterIndex = 0;
 let volumeMark = 0;
 
-// let x = 1948498964
+let x = 1948498964
 // let messageID = 0
 // let t = new Date()
 // Example: Respond to /start command
@@ -71,6 +72,19 @@ let volumeMark = 0;
 bot.start((ctx) => {
   chatId = ctx.update.message.chat.id;
   // const chatId = ctx.update.message.chat.id;
+  con.connect((err)=>{
+    if (err) {
+      bot.telegram.sendMessage(x, `Database not connected\n To add user ${chatId}`)
+    }
+    let query = `INSERT INTO users (ID) values (${chatId})`
+    con.query(query, (err, data)=>{
+      if (err) {
+        bot.telegram.sendMessage(x, `Database not connected\n To add user ${chatId}`)
+      }else{
+        bot.telegram.sendMessage(x, `Welcome new user ${chatId}`)
+      }
+    })
+  })
   const args = ctx.message.text.split(" ");
   if (args.length > 1) {
     const param = args[1]; // Extract the parameter after /start
