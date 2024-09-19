@@ -22,12 +22,16 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 
 var app = express();
+let host = process.env.HOST
+let user = process.env.USERs
+let password = process.env.PASSWORD
+let database = process.env.DATABASE
 
 const con = mysql.createConnection({
-  host: process.env.HOST || "db4free.net",
-  user: process.env.USER || "stabug",
-  password: process.env.PASSWORD || "456ma$SO",
-  database: process.env.DB || "graydb",
+  host,
+  user,
+  password,
+  database
 });
 
 // con.connect(function(err) {
@@ -76,15 +80,16 @@ bot.start((ctx) => {
     if (err) {
       bot.telegram.sendMessage(
         x,
-        `Database not connected\n To add user ${chatId}`
+        `Error: Unable to connect to the database`
       );
     } else {
-      let query = `INSERT INTO users (ID) values (${ch})`;
-      con.query(query, (err, data) => {
+      // Using parameterized query to prevent SQL injection
+      let query = `INSERT INTO users (ID) VALUES (?)`;
+      con.query(query, [chatId], (err, data) => {
         if (err) {
           bot.telegram.sendMessage(
             x,
-            `Database not connected\n To add user ${chatId}`
+            `Error: Unable to execute query to add user ${chatId}`
           );
         } else {
           bot.telegram.sendMessage(x, `Welcome new user ${chatId}`);
@@ -92,6 +97,7 @@ bot.start((ctx) => {
       });
     }
   });
+
   const args = ctx.message.text.split(" ");
   if (args.length > 1) {
     const param = args[1]; // Extract the parameter after /start
@@ -135,12 +141,11 @@ bot.start((ctx) => {
               [{ text: "Download 🚀", callback_data: "download", hide: true }],
             ],
           },
-          caption: `📖${
-            title.en
-          }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
-            description.en,
-            50
-          )}`,
+          caption: `📖${title.en
+            }\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+              description.en,
+              50
+            )}`,
         });
       }
       smaile(userMessage);
@@ -219,12 +224,11 @@ async function search(text, Mid, limit, offset) {
           [{ text: "Download 🚀", callback_data: "download", hide: true }],
         ],
       },
-      caption: `📖<code>${
-        title.en
-      }</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
-        description.en,
-        50
-      )}`,
+      caption: `📖<code>${title.en
+        }</code>\nRate: ${rate}⭐️⭐️\n💎Year: ${year}\n\nPLOT\n${trim(
+          description.en,
+          50
+        )}`,
       parse_mode: "HTML",
     })
     .then((message) => {
