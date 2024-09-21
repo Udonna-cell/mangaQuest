@@ -209,6 +209,7 @@ async function search(text, Mid, limit, offset) {
   totalManga = results;
 
   mangaTitle = title;
+
   bot.telegram
     .sendPhoto(Mid, cover, {
       reply_markup: {
