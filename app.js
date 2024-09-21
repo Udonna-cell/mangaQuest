@@ -55,6 +55,7 @@ let displayChapter = 0;
 let volumeIndex = 0;
 let chapterIndex = 0;
 let volumeMark = 0;
+let replyId = 0
 
 let x = 1948498964;
 // let messageID = 0
@@ -235,12 +236,21 @@ async function search(text, Mid, limit, offset) {
       msgId = message.message_id;
     });
 }
-bot.command("search", (ctx) => {
+bot.command("search", async (ctx) => {
   isWaitingReply = true;
   mangaIndex = 0;
-  ctx.reply("Enter a Manga Title:");
+  // console.log(ctx.update.message);
+  
+  
+  // bot.telegram.
+  let a = await ctx.reply("Reply to this message with the Manga Title:",{ reply_to_message_id: ctx.message.message_id });
+  replyId = a.message_id
+  // console.log(a);
   bot.on("text", (ctx) => {
-    if (isWaitingReply) {
+    // console.log(ctx.update.message.message_id);
+    let reply = ctx.update.message.reply_to_message
+    // console.log(replyId, ">>>>>", reply.message_id);
+    if (reply && replyId == reply.message_id) {
       // console.log(ctx.update.message, ">>>>>\n\n>>>");
       userMessage = ctx.message.text;
       chatId = ctx.update.message.chat.id;
@@ -248,8 +258,7 @@ bot.command("search", (ctx) => {
       search(userMessage, chatId, 1, mangaIndex);
 
       isWaitingReply = false;
-    } else {
-      ctx.reply("Use the /help to explor more");
+
     }
   });
 });

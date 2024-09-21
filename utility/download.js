@@ -30,7 +30,7 @@ async function download(chap, msgID, chatID, ctx, bot, title, vol, chapMark) {
   );
   doc.pipe(fs.createWriteStream(pdfPath));
 
-  console.log(data.chapter.data);
+  // console.log(data.chapter.data);
 
   let baseUrl = data.baseUrl;
   let hash = data.chapter.hash;
