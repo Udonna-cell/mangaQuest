@@ -20,6 +20,7 @@ const getManga = require("./utility/getManga");
 const getRating = require("./utility/getRating");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+const pageChapter = require("./routes/chapter")
 
 var app = express();
 let host = "db4free.net"
@@ -910,7 +911,11 @@ bot.action("chapter_0", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
+  let onlineBook = `https://mangaquest.onrender.com/chapter/stanley/${chatId}/${volumeMark -1}/${mark - 1}`
+
+  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Open Link', onlineBook)
+  ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_1", (ctx) => {
@@ -1152,6 +1157,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/chapter/", pageChapter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
