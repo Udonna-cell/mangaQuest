@@ -911,7 +911,7 @@ bot.action("chapter_0", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  let onlineBook = `https://mangaquest.onrender.com/chapter/stanley/${chatId}/${volumeMark -1}/${mark - 1}`
+  let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
 
   ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`, Markup.inlineKeyboard([
     Markup.button.url('Open Link', onlineBook)

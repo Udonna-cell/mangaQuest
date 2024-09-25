@@ -5,8 +5,17 @@ const getChpter = require("../utility/getChapter");
 const axios = require("axios");
 
 router.get("/:userID/:mangaID/:chapter/:volume", async (req, res, next) => {
-  let { volume, chapter } = req.params;
-  let { id } = await getId("https://api.mangadex.org/manga", "horimiya", 1, 1);
+  let { volume, chapter, mangaID } = req.params;
+  // let { id } = await getId("https://api.mangadex.org/manga", "horimiya", 1, 1);
+
+  const h = await axios.get(
+    `https://api.mangadex.org/manga/${mangaID}?includes[]=author&includes[]=artist&includes[]=cover_art`,
+    {
+      params: { limit: 1, offset: 0 },
+    }
+  );
+  let { id } = h.data.data;
+  
 
   let chapters = await getChpter(id);
   // console.log(chapters.length);
