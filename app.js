@@ -911,10 +911,11 @@ bot.action("chapter_0", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
+  console.log(bookID)
   let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
 
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`, Markup.inlineKeyboard([
-    Markup.button.url('Open Link', onlineBook)
+  ctx.reply(`Downloading chapter ${mark} of volume\nRead Online ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Read Online', onlineBook)
   ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
@@ -935,7 +936,11 @@ bot.action("chapter_1", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
+  let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
+
+  ctx.reply(`Downloading chapter ${mark} of volume\nRead Online ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Read Online', onlineBook)
+  ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_2", (ctx) => {
@@ -955,7 +960,11 @@ bot.action("chapter_2", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
+  let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
+
+  ctx.reply(`Downloading chapter ${mark} of volume\nRead Online ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Read Online', onlineBook)
+  ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_3", (ctx) => {
@@ -975,7 +984,11 @@ bot.action("chapter_3", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
+  let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
+
+  ctx.reply(`Downloading chapter ${mark} of volume\nRead Online ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Read Online', onlineBook)
+  ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_4", (ctx) => {
@@ -995,7 +1008,11 @@ bot.action("chapter_4", (ctx) => {
     });
     deleteFiles(path.resolve(__dirname), [".jpg", ".pdf"]);
   });
-  ctx.reply(`Downloading chapter ${mark} of volume ${volumeMark}`);
+  let onlineBook = `https://mangaquest.onrender.com/chapter/${chatId}/${bookID}/${volumeMark -1}/${mark - 1}`
+
+  ctx.reply(`Downloading chapter ${mark} of volume\nRead Online ${volumeMark}`, Markup.inlineKeyboard([
+    Markup.button.url('Read Online', onlineBook)
+  ]))
   // ctx.reply(`${JSON.stringify(chapter[mark - 1])}`);
 });
 bot.action("chapter_prev", async (ctx) => {
