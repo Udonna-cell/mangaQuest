@@ -9,6 +9,8 @@ router.get("/:userID/:mangaID/:chapter/:volume", async (req, res, next) => {
   // let { id } = await getId("https://api.mangadex.org/manga", "horimiya", 1, 1);
 
   try {
+    volume = parseInt(volume)
+    chapter = parseInt(chapter)
     const h = await axios.get(
       `https://api.mangadex.org/manga/${mangaID}?includes[]=author&includes[]=artist&includes[]=cover_art`,
       {
@@ -18,6 +20,7 @@ router.get("/:userID/:mangaID/:chapter/:volume", async (req, res, next) => {
     let { id } = h.data.data;
 
     let chapters = await getChpter(id);
+    // console.log(volume);
     let chapterID = chapters[volume][chapter].id;
     let { data } = await axios(
       `https://api.mangadex.org/at-home/server/${chapterID}`
@@ -38,7 +41,8 @@ router.get("/:userID/:mangaID/:chapter/:volume", async (req, res, next) => {
     }
     res.render("chapter", { pagesMap });
   } catch (error) {
-    console.log("stanley :)");
+    console.log("\n\n\n");
+    console.log(error);
     res.send("refresh page again")
     
   }
