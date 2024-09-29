@@ -1,6 +1,15 @@
 extends layout
-
+block style
+  link(rel="stylesheet", href="/stylesheets/error.css")
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+  header 
+    section 
+      article
+        figure 
+          img(src="/images/error.png", alt="error")
+        h1 Boo! Page missing!
+        p Whoops! This page must be a ghost - it's not here!
+      button.btn.btn-primary Find shelter
+  //- h1= message
+  //- h2= error.status
+  //- pre #{error.stack}

@@ -43,7 +43,7 @@ router.get("/:userID/:mangaID/:chapter/:volume", async (req, res, next) => {
   } catch (error) {
     console.log("\n\n\n");
     console.log(error);
-    res.send("refresh page again")
+    res.render("error")
     
   }
 
